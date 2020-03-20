@@ -39,24 +39,7 @@ PLOT_HEIGHT = 350
 
 
 #%%
-
-# Preparing the data is time consuming. Thus, we save the processed data and load it if possible.
-df = pokefunctions.read_raw_data(PATH_DATA/'responses.xlsx')
-
-# Preparing the data is time consuming. Thus, we save the processed data and load it if possible.
-if (PATH_DATA/'df_ranked.csv').exists():
-    
-    df_ranked = pd.read_csv(PATH_DATA/'df_ranked.csv', index_col=0)
-else:
-    # Add additional columns.
-    df['sprite_source'] = df.index.map(pokefunctions.get_sprite_url)
-    df['generation_color'] = df['generation'].map(lambda x: pokefunctions.generation_palette()[x])
-
-    # Add ranking information and sort again by Pokemon number.
-    df_ranked = pokefunctions.rank_raw_data(df)
-    
-    df_ranked.to_csv(PATH_DATA/'df_ranked.csv')
-
+df_ranked = pd.read_csv(PATH_DATA/'df_ranked.csv', index_col=0)
 df = df_ranked.sort_index()
 
 #
