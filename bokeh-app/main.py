@@ -86,7 +86,7 @@ button = Button(label='► Play', width=60)
 button.on_click(animate)
 
 #Create figure object.
-p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover, button])
+p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
