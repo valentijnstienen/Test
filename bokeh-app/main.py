@@ -24,24 +24,6 @@ from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
 from bokeh.palettes import brewer
 from bokeh.models import Slider, Button
 
-
-def read_votes(path_data_file):  
-    # Read data.
-    df_votes = pd.read_excel(path_data_file, sheet_name='Form Responses 1')
-    # Rename columns.
-    df_votes.rename(columns={'Timestamp':'timestamp', 'What is your favourite Pokémon?':'vote'}, inplace=True)
-    # Remove any potential NaN.
-    df_votes.dropna(inplace=True)
-    return df_votes
-
-def process_pokemon_votes(df_votes, pokemon_name):
-    df_votes_pokemon = df_votes.query('vote=="' + pokemon_name + '"')
-    df_votes_pokemon = df_votes_pokemon.groupby(pd.Grouper(key='timestamp', freq='1h')).count()
-    df_votes_pokemon['timestamp'] = df_votes_pokemon.index
-    df_votes_pokemon['timestamp_h'] = df_votes_pokemon[['timestamp']].timestamp.dt.strftime('%H:%M')
-    df_votes_pokemon.index = np.arange(0, len(df_votes_pokemon))
-    return df_votes_pokemon
-
 # Define paths.
 dir_path = os.path.dirname(os.path.realpath(__file__))
 PATH_DATA = pathlib.Path(dir_path)
@@ -86,6 +68,55 @@ p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'fie
 
 #Specify layout
 p.add_layout(color_bar, 'below')
+
+# Define the callback function: update_plot
+def update_plot(attr, old, new):
+    period = slider.value
+    new_data = json_data(period)
+    geosource.geojson = new_data
+    p.title.text = 'Number of infected people, period: %d' %period
+
+years = df.Period.unique()
+
+def animate_update():
+    year = slider.value + 1
+    if year > years[-1]:
+        year = years[0]
+    slider.value = year
+
+callback_id = None
+def animate():
+    global callback_id 
+    if button.label == '► Play':
+        button.label = '❚❚ Pause'
+        callback_id = curdoc().add_periodic_callback(animate_update, 800)
+    else:
+        curdoc().remove_periodic_callback(callback_id)
+        button.label = '► Play'
+
+button = Button(label='► Play', width=60)
+button.on_click(animate)
+
+
+
+
+
+def read_votes(path_data_file):  
+    # Read data.
+    df_votes = pd.read_excel(path_data_file, sheet_name='Form Responses 1')
+    # Rename columns.
+    df_votes.rename(columns={'Timestamp':'timestamp', 'What is your favourite Pokémon?':'vote'}, inplace=True)
+    # Remove any potential NaN.
+    df_votes.dropna(inplace=True)
+    return df_votes
+
+def process_pokemon_votes(df_votes, pokemon_name):
+    df_votes_pokemon = df_votes.query('vote=="' + pokemon_name + '"')
+    df_votes_pokemon = df_votes_pokemon.groupby(pd.Grouper(key='timestamp', freq='1h')).count()
+    df_votes_pokemon['timestamp'] = df_votes_pokemon.index
+    df_votes_pokemon['timestamp_h'] = df_votes_pokemon[['timestamp']].timestamp.dt.strftime('%H:%M')
+    df_votes_pokemon.index = np.arange(0, len(df_votes_pokemon))
+    return df_votes_pokemon
 
 
 # Define parameters.
