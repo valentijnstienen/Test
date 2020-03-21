@@ -103,6 +103,5 @@ slider.on_change('value', update_plot)
 tab1 = Panel(child=p, title="Overall")
 tabs = Tabs(tabs=[tab1])
 
-l = column(tabs, row(button,slider))
-
+l = column(p,slider,button)
 curdoc().add_root(l)
