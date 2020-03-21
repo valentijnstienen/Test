@@ -81,6 +81,12 @@ p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
 
+#Add patch renderer to figure. 
+p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'field' :'Infected', 'transform' : color_mapper}, line_width = 0.25, fill_alpha = 1)
+
+#Specify layout
+p.add_layout(color_bar, 'below')
+
 
 # Define parameters.
 POKEMON_PANEL_WIDTH = 200
