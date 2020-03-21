@@ -82,11 +82,17 @@ def animate():
         curdoc().remove_periodic_callback(callback_id)
         button.label = '► Play'
 
+# Make a slider object: slider 
+slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
+slider.on_change('value', update_plot)    
+
+# Make a button
 button = Button(label='► Play', width=60)
 button.on_click(animate)
+layout = column(p,widgetbox(slider), widgetbox(button))
 
 #Create figure object.
-p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover, slider])
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
@@ -97,6 +103,8 @@ p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'fie
 #Specify layout
 p.add_layout(color_bar, 'below')
 
+tab1 = Panel(child=p, title="Overall")
+tabs = Tabs(tabs=[tab1])
 
 
 
@@ -178,8 +186,6 @@ legend = Legend(items=[
 ], title='Generation', location='bottom_right')
 p_overall.add_layout(legend)
 
-tab1 = Panel(child=p, title="Overall")
-tabs = Tabs(tabs=[tab1])
 
 def update(attr, old, new):
     
