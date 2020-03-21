@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-To run this on a bokeh server, in a command prompt run
-bokeh serve --show favorite_pokemon_ui.py
-
-Created on Sun Aug 18 19:07:52 2019
-@author: Arturo Moncada-Torres
-arturomoncadatorres@gmail.com
-"""
 import os
 import pandas as pd
 import numpy as np
@@ -37,7 +28,6 @@ if not PATH_OUTPUT.exists():
 POKEMON_PANEL_WIDTH = 200
 PLOT_HEIGHT = 350
 
-
 #%%
 df_ranked = pd.read_csv(PATH_DATA/'df_ranked.csv', index_col=0)
 df = df_ranked.sort_index()
@@ -46,7 +36,6 @@ df = df_ranked.sort_index()
 df_votes = pokefunctions.read_votes(PATH_DATA/'responses.xlsx')
 df_votes_init = pokefunctions.process_pokemon_votes(df_votes, 'Bulbasaur')
 df_votes_max = pokefunctions.process_pokemon_votes(df_votes, 'Charizard')
-
 
 #%%
 # Define tools.
@@ -58,7 +47,6 @@ initial_generation = df.loc[initial_number, 'generation']
 initial_votes = df.loc[initial_number, 'votes']
 initial_ranking_overall = df.loc[initial_number, 'ranking_overall']
 initial_ranking_generation = df.loc[initial_number, 'ranking_generation']
-
 
 # Create Pokemon display (sprite and info).
 sprite = Div(text="""{}""".format(pokefunctions.get_sprite_html_text(initial_number, alt=initial_name, width=150)), width=POKEMON_PANEL_WIDTH, height=int(PLOT_HEIGHT*.35))
@@ -96,32 +84,9 @@ legend = Legend(items=[
 ], title='Generation', location='bottom_right')
 p_overall.add_layout(legend)
 
-hover_overall = HoverTool(mode='hline')
-hover_overall.tooltips = """
-<table style="width:175px">
-  <tr>
-    <th>@name</th>
-    <td rowspan=4><image src=@sprite_source alt="" width="75"/></td>
-  </tr>
-  <tr>
-    <td><strong>Generation: </strong>@generation</td>
-  </tr>
-  <tr>
-    <td><strong>Votes: </strong>@votes</td>
-  </tr>
-  <tr>
-    <td><strong>Ranking: </strong>@ranking_overall</td>
-  </tr>
-</table>
-"""
-p_overall.add_tools(hover_overall)
-    
-
-
 # Create tabs.
 tab1 = Panel(child=p_overall, title="Overall")
 tabs = Tabs(tabs=[tab1])
-
 
 
 def update(attr, old, new):
