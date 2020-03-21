@@ -48,9 +48,6 @@ initial_votes = df.loc[initial_number, 'votes']
 initial_ranking_overall = df.loc[initial_number, 'ranking_overall']
 initial_ranking_generation = df.loc[initial_number, 'ranking_generation']
 
-# Create Pokemon display (sprite and info).
-sprite = Div(text="""{}""".format(pokefunctions.get_sprite_html_text(initial_number, alt=initial_name, width=150)), width=POKEMON_PANEL_WIDTH, height=int(PLOT_HEIGHT*.35))
-
 # Create Select.
 select = Select(title="Pokemon:", value=df['name'].tolist()[0], options=df['name'].tolist())
 
@@ -101,9 +98,6 @@ def update(attr, old, new):
     pokemon_ranking_overall = df.loc[pokemon_number, 'ranking_overall']
     pokemon_ranking_generation = df.loc[pokemon_number, 'ranking_generation']
     
-    # Update Pokemon panel.
-    sprite.text = """{}""".format(pokefunctions.get_sprite_html_text(pokemon_number, alt=pokemon_name, width=150))
-    
     # Update overall.
     y_coord = len(df) - pokemon_ranking_overall + 0.5
     arrow_overall.x_start = pokemon_votes + max(df['votes'])*0.05
@@ -145,5 +139,5 @@ def update(attr, old, new):
 
 
 select.on_change('value', update) 
-l = layout(row(column(sprite, select), tabs), sizing_mode='stretch_width')
+l = layout(row(column(select), tabs), sizing_mode='stretch_width')
 curdoc().add_root(l)
