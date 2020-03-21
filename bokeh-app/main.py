@@ -96,8 +96,8 @@ p.add_layout(color_bar, 'below')
 # Define the callback function: update_plot
 def update_plot(attr, old, new):
     period = slider.value
-    p.title.text = 'Number of infected people, period: %d' %period
     new_data = json_data(period)
+    p.title.text = 'Number of infected people, period: %d' %period
     geosource.geojson = new_data
     
 
