@@ -17,12 +17,11 @@ from bokeh.models import Arrow, NormalHead
 from bokeh.models import Legend, LegendItem
 from bokeh.models import DatetimeTickFormatter
 from bokeh.models.tools import HoverTool
-from bokeh.models.widgets import Select
+from bokeh.models.widgets import Select, Slider, Button
 
 from bokeh.layouts import widgetbox
 from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
 from bokeh.palettes import brewer
-from bokeh.models import Slider, Button
 
 # Define paths.
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -103,11 +102,8 @@ def update_plot(attr, old, new):
 slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
 slider.on_change('value', update_plot) 
 
-
-
 tab1 = Panel(child=p, title="Overall")
 tabs = Tabs(tabs=[tab1])
-
 
 
 
@@ -122,7 +118,6 @@ PLOT_HEIGHT = 350
 #%%
 df_ranked = pd.read_csv(PATH_DATA/'df_ranked.csv', index_col=0)
 df = df_ranked.sort_index()
-
 
 #%%
 # Define tools.
@@ -157,17 +152,6 @@ arrow_overall = Arrow(end=NormalHead(line_color='red', fill_color='red', line_wi
                       y_start=y_coord, y_end=y_coord)
 p_overall.add_layout(arrow_overall)
 
-legend = Legend(items=[
-    LegendItem(label='1', renderers=[r_overall], index=6),
-    LegendItem(label='2', renderers=[r_overall], index=37),
-    LegendItem(label='3', renderers=[r_overall], index=1),
-    LegendItem(label='4', renderers=[r_overall], index=10),
-    LegendItem(label='5', renderers=[r_overall], index=2),
-    LegendItem(label='6', renderers=[r_overall], index=14),
-    LegendItem(label='7', renderers=[r_overall], index=8),
-], title='Generation', location='bottom_right')
-p_overall.add_layout(legend)
-
 tab1 = Panel(child=p_overall, title="Overall")
 tabs = Tabs(tabs=[tab1])
 
@@ -192,7 +176,4 @@ def update(attr, old, new):
 
 select.on_change('value', update) 
 l = column(tabs, select)
-#, sizing_mode='stretch_width')
 curdoc().add_root(l)
-
-#layout = column(p,widgetbox(slider), widgetbox(button))
