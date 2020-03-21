@@ -73,13 +73,13 @@ def update_plot(attr, old, new):
     geosource.geojson = new_data
     p.title.text = 'Number of infected people, period: %d' %period
 
-years = df.Period.unique()
+periods = df.Period.unique()
 
 def animate_update():
-    year = slider.value + 1
-    if year > years[-1]:
-        year = years[0]
-    slider.value = year
+    period = slider.value + 1
+    if year > periods[-1]:
+        period = periods[0]
+    slider.value = period
 
 callback_id = None
 def animate():
