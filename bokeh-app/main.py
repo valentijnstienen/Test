@@ -6,16 +6,10 @@ import json
 
 from bokeh.io import curdoc
 from bokeh.plotting import figure
-from bokeh.layouts import layout, row, column
-from bokeh.models import Range1d, Panel, Tabs, FactorRange
-from bokeh.models import Arrow, NormalHead
-from bokeh.models import Legend, LegendItem
-from bokeh.models import DatetimeTickFormatter
+from bokeh.layouts import layout, row, column, widgetbox
+from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
 from bokeh.models.tools import HoverTool
 from bokeh.models.widgets import Select, Slider, Button
-
-from bokeh.layouts import widgetbox
-from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
 from bokeh.palettes import brewer
 
 # Define paths.
