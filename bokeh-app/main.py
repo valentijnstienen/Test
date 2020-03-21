@@ -63,28 +63,6 @@ initial_ranking_generation = df.loc[initial_number, 'ranking_generation']
 # Create Pokemon display (sprite and info).
 sprite = Div(text="""{}""".format(pokefunctions.get_sprite_html_text(initial_number, alt=initial_name, width=150)), width=POKEMON_PANEL_WIDTH, height=int(PLOT_HEIGHT*.35))
 
-info = Div(text="""
-<h3>{0}. {1}</h3>
-<table style="width:100%">
-  <tr>
-    <td><b>Generation:</b></td>
-    <td>{2:.0f}</td>
-  </tr>
-  <tr>
-    <td><b>Votes:</b></td>
-    <td>{3:.0f}</td>
-  </tr>
-  <tr>
-    <td><b>Overall ranking:</b></td>
-    <td>{4:.0f}</td>
-  </tr>
-  <tr>
-    <td><b>Generation ranking:</b></td>
-    <td>{5:.0f}</td>
-  </tr>
-</table>
-""".format(initial_number, initial_name, initial_generation, initial_votes, initial_ranking_overall, initial_ranking_generation), width=POKEMON_PANEL_WIDTH, height=int(PLOT_HEIGHT*.6))
-
 # Create Select.
 select = Select(title="Pokemon:", value=df['name'].tolist()[0], options=df['name'].tolist())
 
@@ -233,27 +211,6 @@ def update(attr, old, new):
     
     # Update Pokemon panel.
     sprite.text = """{}""".format(pokefunctions.get_sprite_html_text(pokemon_number, alt=pokemon_name, width=150))
-    info.text="""
-    <h3>{0}. {1}</h3>
-    <table style="width:100%">
-      <tr>
-        <td><b>Generation:</b></td>
-        <td>{2:.0f}</td>
-      </tr>
-      <tr>
-        <td><b>Votes:</b></td>
-        <td>{3:.0f}</td>
-      </tr>
-      <tr>
-        <td><b>Overall ranking:</b></td>
-        <td>{4:.0f}</td>
-      </tr>
-      <tr>
-        <td><b>Generation ranking:</b></td>
-        <td>{5:.0f}</td>
-      </tr>
-    </table>
-    """.format(pokemon_number, pokemon_name, pokemon_generation, pokemon_votes, pokemon_ranking_overall, pokemon_ranking_generation)
     
     # Update overall.
     y_coord = len(df) - pokemon_ranking_overall + 0.5
@@ -296,5 +253,5 @@ def update(attr, old, new):
 
 
 select.on_change('value', update) 
-l = layout(row(column(sprite, info, select), tabs), sizing_mode='stretch_width')
+l = layout(row(column(sprite, select), tabs), sizing_mode='stretch_width')
 curdoc().add_root(l)
