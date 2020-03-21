@@ -19,10 +19,7 @@ import pokefunctions
 # Define paths.
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-PATH_DATA = pathlib.Path(os.path.join(dir_path, 'data'))
-PATH_OUTPUT = pathlib.Path(os.path.join(dir_path, 'output'))
-if not PATH_OUTPUT.exists():
-    PATH_OUTPUT.mkdir()
+PATH_DATA = pathlib.Path(dir_path)
 
 # Define parameters.
 POKEMON_PANEL_WIDTH = 200
