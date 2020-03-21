@@ -96,7 +96,7 @@ def animate():
 
 button = Button(label='► Play', width=60)
 button.on_click(animate)
-
+p.add_tools(button)
 
 
 
