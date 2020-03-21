@@ -17,10 +17,6 @@ from bokeh.models import DatetimeTickFormatter
 from bokeh.models.tools import HoverTool
 from bokeh.models.widgets import Select
 
-#%%
-def generation_palette():
-    return {1:'#ACD36C', 2:'#DCD677', 3:'#9CD7C8', 4:'#B7A3C3', 5:'#9FCADF', 6:'#DD608C',  7:'#E89483'}
-
 def read_votes(path_data_file):  
     # Read data.
     df_votes = pd.read_excel(path_data_file, sheet_name='Form Responses 1')
