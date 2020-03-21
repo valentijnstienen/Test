@@ -60,6 +60,19 @@ p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
 
+#Add patch renderer to figure. 
+p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'field' :'Infected', 'transform' : color_mapper}, line_width = 0.25, fill_alpha = 1)
+
+#Specify layout
+p.add_layout(color_bar, 'below')
+
+# Define the callback function: update_plot
+def update_plot(attr, old, new):
+    period = slider.value
+    new_data = json_data(period)
+    geosource.geojson = new_data
+    p.title.text = 'Number of infected people, period: %d' %period
+
 years = df.Period.unique()
 
 def animate_update():
@@ -75,29 +88,13 @@ def animate():
         button.label = '❚❚ Pause'
         callback_id = curdoc().add_periodic_callback(animate_update, 300)
     else:
-        button.label = '► Play'   
-        p.title.text = 'Number of infected people, period: HOND'
         curdoc().remove_periodic_callback(callback_id)
         button.label = '► Play'   
 
 # Make a button
 button = Button(label='► Play', width=60)
-button.on_click(animate)
-#layout = column(p,widgetbox(slider), widgetbox(button))
-
-#Add patch renderer to figure. 
-p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'field' :'Infected', 'transform' : color_mapper}, line_width = 0.25, fill_alpha = 1)
-
-#Specify layout
-p.add_layout(color_bar, 'below')
-
-# Define the callback function: update_plot
-def update_plot(attr, old, new):
-    period = slider.value
-    new_data = json_data(period)
-    geosource.geojson = new_data
-    p.title.text = 'Number of infected people, period: %d' %period
-
+button.on_click(animate)  
+    
 # Make a slider object: slider 
 slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
 slider.on_change('value', update_plot) 
