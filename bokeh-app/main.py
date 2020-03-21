@@ -12,7 +12,7 @@ from bokeh.models import Arrow, NormalHead
 from bokeh.models import Legend, LegendItem
 from bokeh.models import DatetimeTickFormatter
 from bokeh.models.tools import HoverTool
-from bokeh.models.widgets import Div, Select
+from bokeh.models.widgets import Select
 
 import pokefunctions
 
