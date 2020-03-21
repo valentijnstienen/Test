@@ -209,39 +209,6 @@ def update(attr, old, new):
     arrow_overall.x_end = pokemon_votes
     arrow_overall.y_start = y_coord
     arrow_overall.y_end = y_coord
-        
-    # Update generation.
-    df_generation_ = df_ranked.query('generation=="' + str(pokemon_generation) + '"')
-    source_generation_ = ColumnDataSource(df_generation_[['name', 'votes', 'generation_color', 'ranking_generation', 'sprite_source']])
-    pokemon_names_gen_ = source_generation_.data['name']
-    pokemon_votes_gen_ = source_generation_.data['votes']
-
-    p_generation.x_range.bounds = (0, max(pokemon_votes_gen_)*1.05)
-    p_generation.x_range.update(start=0, end=max(pokemon_votes_gen_)*1.05)
-    p_generation.y_range.bounds = (0, len(pokemon_names_gen_))
-    p_generation.y_range.factors = list(pokemon_names_gen_)
-    
-    r_generation.data_source.data.update(source_generation_.data)
-
-    y_coord = pokemon_names_gen_.tolist().index(pokemon_name) + 0.5
-    arrow_generation.x_start = pokemon_votes + source_generation_.data['votes'].max()*0.05
-    arrow_generation.x_end = pokemon_votes
-    arrow_generation.y_start = y_coord
-    arrow_generation.y_end = y_coord
-
-    # Update votes in time.
-    df_votes_ = df_votes.query('vote=="' + pokemon_name + '"')
-    df_votes_ = df_votes_.groupby(pd.Grouper(key='timestamp', freq='1h')).count()
-    df_votes_['timestamp'] = df_votes_.index
-    df_votes_['timestamp_h'] = df_votes_[['timestamp']].timestamp.dt.strftime('%H:%M')
-    df_votes_.index = np.arange(0, len(df_votes_))
-
-    source_time_ = ColumnDataSource(df_votes_[['timestamp', 'timestamp_h', 'vote']])
-    votes = source_time_.data['vote']
-    color = 'red'
-    r_time.data_source.data.update(source_time_.data)
-    r_time.glyph.fill_color = color
-
 
 select.on_change('value', update) 
 l = column(tabs, select)
