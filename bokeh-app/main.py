@@ -92,7 +92,7 @@ button.on_click(animate)
 layout = column(p,widgetbox(slider), widgetbox(button))
 
 #Create figure object.
-p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover, slider])
+p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
@@ -240,7 +240,7 @@ def update(attr, old, new):
 
 
 select.on_change('value', update) 
-l = layout(row(column(select), tabs), sizing_mode='stretch_width')
+l = layout(row(column(slider), tabs), sizing_mode='stretch_width')
 
 #layout = column(p,widgetbox(slider), widgetbox(button))
 curdoc().add_root(l)
