@@ -18,14 +18,6 @@ from bokeh.models.tools import HoverTool
 from bokeh.models.widgets import Select
 
 
-import json
-import geopandas as gpd
-
-from bokeh.layouts import widgetbox
-from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
-from bokeh.palettes import brewer
-from bokeh.models import Slider, Button
-
 def read_votes(path_data_file):  
     # Read data.
     df_votes = pd.read_excel(path_data_file, sheet_name='Form Responses 1')
