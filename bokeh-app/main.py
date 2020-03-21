@@ -240,7 +240,7 @@ def update(attr, old, new):
 
 
 select.on_change('value', update) 
-l = layout(column(tabs), sizing_mode='stretch_width')
+l = layout(column(tabs, slider), sizing_mode='stretch_width')
 curdoc().add_root(l)
 
 #layout = column(p,widgetbox(slider), widgetbox(button))
