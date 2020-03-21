@@ -61,7 +61,7 @@ p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , p
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
-p.title.text = 'Number of infected people, period: 10'
+
 years = df.Period.unique()
 
 def animate_update():
@@ -95,6 +95,7 @@ p.add_layout(color_bar, 'below')
 
 # Define the callback function: update_plot
 def update_plot(attr, old, new):
+    p.title.text = 'Number of infected people, period: 10'
     period = slider.value
     new_data = json_data(period)
     geosource.geojson = new_data
