@@ -101,8 +101,5 @@ def update_plot(attr, old, new):
 slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
 slider.on_change('value', update_plot) 
 
-tab1 = Panel(child=p, title="Overall")
-tabs = Tabs(tabs=[tab1])
-
 l = column(p,widgetbox(slider),widgetbox(button))
 curdoc().add_root(l)
