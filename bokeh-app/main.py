@@ -116,84 +116,11 @@ hover_overall.tooltips = """
 """
 p_overall.add_tools(hover_overall)
     
-    
-# Create the "Generation" plot.
-df_generation = df_ranked.query('generation==' + str(initial_generation))
-source_generation = ColumnDataSource(df_generation[['name', 'votes', 'generation_color', 'ranking_generation', 'sprite_source']])
-pokemon_names_gen = source_generation.data['name']
-pokemon_votes_gen = source_generation.data['votes']
-
-p_generation = figure(y_range=FactorRange(factors=pokemon_names_gen, bounds=(0, len(pokemon_names_gen))), 
-                      x_axis_label='Votes', plot_height=PLOT_HEIGHT, tools=tools)
-r_generation = p_generation.hbar(y='name', left=0, right='votes', height=1, color='generation_color', source=source_generation)
-p_generation.x_range = Range1d(0, max(pokemon_votes_gen)*1.05, bounds=(0, max(pokemon_votes_gen)*1.05))
-p_generation.ygrid.grid_line_color = None
-y_coord = pokemon_names_gen.tolist().index(initial_name) + 0.5
-
-pokemon_names_gen.tolist()
-arrow_generation = Arrow(end=NormalHead(line_color='red', fill_color='red', line_width=0, size=10, line_alpha=0.75, fill_alpha=0.75), 
-                      line_color='red', line_width=2.5, line_alpha=0.75, 
-                      x_start=initial_votes + max(pokemon_votes_gen)*0.05, x_end=initial_votes, 
-                      y_start=y_coord, y_end=y_coord)
-p_generation.add_layout(arrow_generation)
-hover_generation = HoverTool(mode='hline')
-hover_generation.tooltips = """
-<table style="width:175px">
-  <tr>
-    <th>@name</th>
-    <td rowspan=4><image src=@sprite_source alt="" width="75"/></td>
-  </tr>
-  <tr>
-    <td><strong>Votes: </strong>@votes</td>
-  </tr>
-  <tr>
-    <td><strong>Ranking: </strong>@ranking_generation</td>
-  </tr>
-</table>
-"""
-p_generation.add_tools(hover_generation)
-
-
-# Create the "Votes in time" plot.
-source_time = ColumnDataSource(df_votes_init[['timestamp', 'timestamp_h', 'vote']])
-timestamp = source_time.data['timestamp']
-votes = source_time.data['vote']
-max_votes = max(df_votes_max['vote'])
-color = pokefunctions.get_sprite_color(pokefunctions.get_sprite(initial_number))
-
-p_time = figure(plot_height=PLOT_HEIGHT, x_axis_type='datetime', x_axis_label="Time", y_axis_label="Votes", tools=tools)
-# Notice how we need to give a huge width value since the datetime axis has a resolution of miliseconds.
-# See https://stackoverflow.com/questions/45711567/categorical-y-axis-and-datetime-x-axis-with-bokeh-vbar-plot
-r_time = p_time.vbar(x='timestamp', bottom=0, top='vote', width=3600000, line_color='#696969', fill_color=color, source=source_time)
-
-p_time.x_range = Range1d(df_votes_init['timestamp'].min(), df_votes_init['timestamp'].max(), bounds=(df_votes_init['timestamp'].min(), df_votes_init['timestamp'].max()))
-p_time.y_range = Range1d(0, max_votes*1.05, bounds=(0, max_votes*1.05))
-
-x_formatter = DatetimeTickFormatter(minutes=['%H:%M'], 
-                                    hours=['%H:%M'], 
-                                    days=['%H:%M'], 
-                                    months=['%H:%M'], 
-                                    years=['%H:%M'])
-p_time.xaxis.formatter = x_formatter
-hover_time = HoverTool(mode='vline')
-hover_time.tooltips = """
-<table style="width:100px">
-  <tr>
-    <td><strong>Time: </strong>@timestamp_h h</td>
-  </tr>
-  <tr>
-    <td><strong>Votes: </strong>@vote</td>
-  </tr>
-</table>
-"""
-p_time.add_tools(hover_time)
 
 
 # Create tabs.
 tab1 = Panel(child=p_overall, title="Overall")
-tab2 = Panel(child=p_generation, title="Generation")
-tab3 = Panel(child=p_time, title="Votes in time")
-tabs = Tabs(tabs=[tab1, tab2, tab3])
+tabs = Tabs(tabs=[tab1])
 
 
 
