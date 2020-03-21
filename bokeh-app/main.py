@@ -152,8 +152,8 @@ arrow_overall = Arrow(end=NormalHead(line_color='red', fill_color='red', line_wi
                       y_start=y_coord, y_end=y_coord)
 p_overall.add_layout(arrow_overall)
 
-tab1 = Panel(child=p_overall, title="Overall")
-tabs = Tabs(tabs=[tab1])
+#tab1 = Panel(child=p_overall, title="Overall")
+#tabs = Tabs(tabs=[tab1])
 
 def update(attr, old, new):
     
