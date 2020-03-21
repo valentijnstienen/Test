@@ -79,8 +79,8 @@ def animate():
         button.label = '► Play'   
 
 # Make a button
-#button = Button(label='► Play', width=60)
-#button.on_click(animate)
+button = Button(label='► Play', width=60)
+button.on_click(animate)
 #layout = column(p,widgetbox(slider), widgetbox(button))
 
 #Add patch renderer to figure. 
@@ -103,6 +103,6 @@ slider.on_change('value', update_plot)
 tab1 = Panel(child=p, title="Overall")
 tabs = Tabs(tabs=[tab1])
 
-l = column(tabs, slider)
+l = column(tabs, row(button,slider))
 
 curdoc().add_root(l)
