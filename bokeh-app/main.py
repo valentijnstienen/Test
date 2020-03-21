@@ -133,7 +133,7 @@ def update(attr, old, new):
 
     source_time_ = ColumnDataSource(df_votes_[['timestamp', 'timestamp_h', 'vote']])
     votes = source_time_.data['vote']
-    color = pokefunctions.get_sprite_color(pokefunctions.get_sprite(pokemon_number))
+    color = 'red'
     r_time.data_source.data.update(source_time_.data)
     r_time.glyph.fill_color = color
 
