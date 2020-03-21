@@ -175,5 +175,5 @@ def update(attr, old, new):
     arrow_overall.y_end = y_coord
 
 select.on_change('value', update) 
-l = column(tabs, select)
+l = column(tabs, slider)
 curdoc().add_root(l)
