@@ -6,8 +6,6 @@ import requests
 import geopandas as gpd
 import json
 
-from PIL import Image
-from io import BytesIO
 from bokeh.io import curdoc
 from bokeh.plotting import figure
 from bokeh.layouts import layout, row, column
@@ -85,8 +83,6 @@ def animate():
 #button.on_click(animate)
 #layout = column(p,widgetbox(slider), widgetbox(button))
 
-
-
 #Add patch renderer to figure. 
 p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'field' :'Infected', 'transform' : color_mapper}, line_width = 0.25, fill_alpha = 1)
 
@@ -99,7 +95,6 @@ def update_plot(attr, old, new):
     new_data = json_data(period)
     p.title.text = 'Number of infected people, period: %d' %period
     geosource.geojson = new_data
-    
 
 # Make a slider object: slider 
 slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
@@ -108,75 +103,6 @@ slider.on_change('value', update_plot)
 tab1 = Panel(child=p, title="Overall")
 tabs = Tabs(tabs=[tab1])
 
-
-
-
-
-
-
-# Define parameters.
-POKEMON_PANEL_WIDTH = 200
-PLOT_HEIGHT = 350
-
-#%%
-df_ranked = pd.read_csv(PATH_DATA/'df_ranked.csv', index_col=0)
-df = df_ranked.sort_index()
-
-#%%
-# Define tools.
-tools = ['pan', 'zoom_in', 'zoom_out', 'wheel_zoom', 'reset']
-
-initial_number = 1
-initial_name = df.loc[initial_number, 'name']
-initial_generation = df.loc[initial_number, 'generation']
-initial_votes = df.loc[initial_number, 'votes']
-initial_ranking_overall = df.loc[initial_number, 'ranking_overall']
-initial_ranking_generation = df.loc[initial_number, 'ranking_generation']
-
-# Create Select.
-select = Select(title="Pokemon:", value=df['name'].tolist()[0], options=df['name'].tolist())
-
-# Create the "Overall" plot.
-source_overall = ColumnDataSource(df_ranked[['name', 'votes', 'generation', 'generation_color', 'ranking_overall', 'ranking_generation', 'sprite_source']])
-pokemon_names = source_overall.data['name']
-pokemon_votes = source_overall.data['votes']
-
-# Notice that initializing the figure with y_range=pokemon_names 
-# doesn't allow the option to bound the plot.
-p_overall = figure(y_range=FactorRange(factors=pokemon_names, bounds=(0, len(pokemon_names))), 
-                   x_axis_label='Votes', plot_height=PLOT_HEIGHT, tools=tools)
-r_overall = p_overall.hbar(y='name', left=0, right='votes', height=1, color='generation_color', source=source_overall)
-p_overall.x_range = Range1d(0, max(pokemon_votes)*1.05, bounds=(0, max(pokemon_votes)*1.05))
-p_overall.ygrid.grid_line_color = None
-y_coord = len(df_ranked) - initial_ranking_overall + 0.5
-arrow_overall = Arrow(end=NormalHead(line_color='red', fill_color='red', line_width=0, size=10, line_alpha=0.75, fill_alpha=0.75), 
-                      line_color='red', line_width=2.5, line_alpha=0.75, 
-                      x_start=initial_votes + max(pokemon_votes)*0.05, x_end=initial_votes, 
-                      y_start=y_coord, y_end=y_coord)
-p_overall.add_layout(arrow_overall)
-
-#tab1 = Panel(child=p_overall, title="Overall")
-#tabs = Tabs(tabs=[tab1])
-
-def update(attr, old, new):
-    
-    Pokemon = select.value
-    
-    # Get Pokemon of interest values.
-    pokemon_number = df.index[df.loc[:, 'name'] == Pokemon].tolist()[0]
-    pokemon_name = df.loc[pokemon_number, 'name']
-    pokemon_generation = df.loc[pokemon_number, 'generation']
-    pokemon_votes = df.loc[pokemon_number, 'votes']
-    pokemon_ranking_overall = df.loc[pokemon_number, 'ranking_overall']
-    pokemon_ranking_generation = df.loc[pokemon_number, 'ranking_generation']
-    
-    # Update overall.
-    y_coord = len(df) - pokemon_ranking_overall + 0.5
-    arrow_overall.x_start = pokemon_votes + max(df['votes'])*0.05
-    arrow_overall.x_end = pokemon_votes
-    arrow_overall.y_start = y_coord
-    arrow_overall.y_end = y_coord
-
-select.on_change('value', update) 
 l = column(tabs, slider)
+
 curdoc().add_root(l)
