@@ -57,11 +57,11 @@ color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, he
     border_line_color=None,location = (0,0), orientation = 'horizontal', major_label_overrides = tick_labels)
 
 #Create figure object.
-p = figure(title = 'Number of infected people, period: 2', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
-
+p.title.text = 'Number of infected people, period: 10'
 years = df.Period.unique()
 
 def animate_update():
