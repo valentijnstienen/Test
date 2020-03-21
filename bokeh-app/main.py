@@ -73,9 +73,10 @@ def animate():
     global callback_id 
     if button.label == '► Play':
         button.label = '❚❚ Pause'
-        callback_id = curdoc().add_periodic_callback(animate_update, 200)
+        callback_id = curdoc().add_periodic_callback(animate_update, 300)
     else:
-        p.title.text = 'Number of infected people, period: %d' %period
+        button.label = '► Play'   
+        p.title.text = 'Number of infected people, period: HOND'
         curdoc().remove_periodic_callback(callback_id)
         button.label = '► Play'   
 
