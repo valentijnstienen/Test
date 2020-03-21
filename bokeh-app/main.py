@@ -73,7 +73,7 @@ def animate():
     global callback_id 
     if button.label == '► Play':
         button.label = '❚❚ Pause'
-        callback_id = curdoc().add_periodic_callback(animate_update, 800)
+        callback_id = curdoc().add_periodic_callback(animate_update, 200)
     else:
         curdoc().remove_periodic_callback(callback_id)
         button.label = '► Play'   
@@ -93,8 +93,8 @@ p.add_layout(color_bar, 'below')
 def update_plot(attr, old, new):
     period = slider.value
     new_data = json_data(period)
-    p.title.text = 'Number of infected people, period: %d' %period
     geosource.geojson = new_data
+    p.title.text = 'Number of infected people, period: %d' %period
 
 # Make a slider object: slider 
 slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
