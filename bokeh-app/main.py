@@ -176,10 +176,6 @@ legend = Legend(items=[
 ], title='Generation', location='bottom_right')
 p_overall.add_layout(legend)
 
-# Create tabs.
-tab1 = Panel(child=p_overall, title="Overall")
-tabs = Tabs(tabs=[tab1])
-
 
 def update(attr, old, new):
     
@@ -234,8 +230,8 @@ def update(attr, old, new):
 
 
 select.on_change('value', update) 
-l = layout(row(column(select), tabs), sizing_mode='stretch_width')
+l = layout(row(column(select)), sizing_mode='stretch_width')
 
-layout = column(p,widgetbox(slider), widgetbox(button))
-curdoc().add_root(layout)
+#layout = column(p,widgetbox(slider), widgetbox(button))
+curdoc().add_root(l)
 #curdoc().add_root(l)
