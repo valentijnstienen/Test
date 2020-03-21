@@ -29,7 +29,7 @@ PATH_DATA = pathlib.Path(dir_path)
 df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
 geoj = gpd.read_file(PATH_DATA/'corop.geojson')
 
-#Define function that returns json_data for year selected by user.
+#Define function that returns json_data for period selected by user.
 def json_data(selectedPeriod):
     period = selectedPeriod
     df_period = df[df['Period'] == period]
@@ -41,7 +41,7 @@ def json_data(selectedPeriod):
 #Input GeoJSON source that contains features for plotting.
 geosource = GeoJSONDataSource(geojson = json_data(1))
 
-#Define a sequential multi-hue color palette.
+#Define a color palette.
 palette = brewer['YlOrRd'][7]
 palette = palette[::-1]
 color_mapper = LinearColorMapper(palette = palette, low = 0, high = 70, nan_color = '#d9d9d9')
@@ -75,6 +75,7 @@ def animate():
         button.label = '❚❚ Pause'
         callback_id = curdoc().add_periodic_callback(animate_update, 200)
     else:
+        p.title.text = 'Number of infected people, period: %d' %period
         curdoc().remove_periodic_callback(callback_id)
         button.label = '► Play'   
 
@@ -103,5 +104,5 @@ slider.on_change('value', update_plot)
 tab1 = Panel(child=p, title="Overall")
 tabs = Tabs(tabs=[tab1])
 
-l = column(p,slider,button)
+l = column(p,widgetbox(slider),widgetbox(button))
 curdoc().add_root(l)
