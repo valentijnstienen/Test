@@ -48,7 +48,19 @@ PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
 df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
-#geoj = gpd.read_file(PATH_DATA/'corop.geojson')
+geoj = gpd.read_file(PATH_DATA/'corop.geojson')
+
+#Define function that returns json_data for year selected by user.
+def json_data(selectedPeriod):
+    period = selectedPeriod
+    df_period = df[df['Period'] == period]
+    merged = geoj.merge(df_period, left_on = 'OBJECTID', right_on = 'OBJECTID', how = 'left')
+    merged_json = json.loads(merged.to_json())
+    json_data = json.dumps(merged_json)
+    return json_data
+
+#Input GeoJSON source that contains features for plotting.
+geosource = GeoJSONDataSource(geojson = json_data(1))
 
 # Define parameters.
 POKEMON_PANEL_WIDTH = 200
