@@ -48,7 +48,7 @@ PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
 df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
-geoj = gpd.read_file(PATH_DATA/'corop.geojson')
+#geoj = gpd.read_file(PATH_DATA/'corop.geojson')
 
 # Define parameters.
 POKEMON_PANEL_WIDTH = 200
