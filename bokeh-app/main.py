@@ -68,7 +68,7 @@ periods = df.Period.unique()
 
 def animate_update():
     period = slider.value + 1
-    if year > periods[-1]:
+    if period > periods[-1]:
         period = periods[0]
     slider.value = period
 
