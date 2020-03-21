@@ -57,13 +57,6 @@ hover = HoverTool(tooltips = [ ('COROP', '@Name'),('Infected', '@Infected')])
 color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
     border_line_color=None,location = (0,0), orientation = 'horizontal', major_label_overrides = tick_labels)
 
-# Define the callback function: update_plot
-def update_plot(attr, old, new):
-    period = slider.value
-    new_data = json_data(period)
-    geosource.geojson = new_data
-    p.title.text = 'Number of infected people, period: %d' %period
-
 years = df.Period.unique()
 
 def animate_update():
@@ -80,11 +73,7 @@ def animate():
         callback_id = curdoc().add_periodic_callback(animate_update, 800)
     else:
         curdoc().remove_periodic_callback(callback_id)
-        button.label = '► Play'
-
-# Make a slider object: slider 
-slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
-slider.on_change('value', update_plot)    
+        button.label = '► Play'   
 
 # Make a button
 #button = Button(label='► Play', width=60)
@@ -102,6 +91,19 @@ p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'fie
 
 #Specify layout
 p.add_layout(color_bar, 'below')
+
+# Define the callback function: update_plot
+def update_plot(attr, old, new):
+    period = slider.value
+    new_data = json_data(period)
+    geosource.geojson = new_data
+    p.title.text = 'Number of infected people, period: %d' %period
+
+# Make a slider object: slider 
+slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
+slider.on_change('value', update_plot) 
+
+
 
 tab1 = Panel(child=p, title="Overall")
 tabs = Tabs(tabs=[tab1])
