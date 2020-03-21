@@ -1,15 +1,12 @@
 import os
 import pandas as pd
-import numpy as np
 import pathlib
-import requests
 import geopandas as gpd
 import json
 
 from bokeh.io import curdoc
 from bokeh.plotting import figure
 from bokeh.layouts import layout, row, column
-from bokeh.models import ColumnDataSource
 from bokeh.models import Range1d, Panel, Tabs, FactorRange
 from bokeh.models import Arrow, NormalHead
 from bokeh.models import Legend, LegendItem
