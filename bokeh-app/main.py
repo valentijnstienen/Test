@@ -177,6 +177,7 @@ legend = Legend(items=[
 p_overall.add_layout(legend)
 
 tab1 = Panel(child=p_overall, title="Overall")
+tabs = Tabs(tabs=[tab1])
 
 def update(attr, old, new):
     
