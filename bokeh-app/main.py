@@ -17,6 +17,40 @@ from bokeh.models import DatetimeTickFormatter
 from bokeh.models.tools import HoverTool
 from bokeh.models.widgets import Select
 
+import os
+import pandas as pd
+import json
+import geopandas as gpd
+import pathlib
+
+from bokeh.io import curdoc
+from bokeh.plotting import figure
+from bokeh.layouts import layout, widgetbox, row, column
+from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
+from bokeh.palettes import brewer
+from bokeh.models import Slider, HoverTool, Button
+
+from bokeh.models import ColumnDataSource, OpenURL, TapTool
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+PATH_DATA = pathlib.Path(dir_path)
+
+#Load data 
+df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
+geoj = gpd.read_file(PATH_DATA/'corop.geojson')
+
+#Define function that returns json_data for year selected by user.
+def json_data(selectedPeriod):
+    period = selectedPeriod
+    df_period = df[df['Period'] == period]
+    merged = geoj.merge(df_period, left_on = 'OBJECTID', right_on = 'OBJECTID', how = 'left')
+    merged_json = json.loads(merged.to_json())
+    json_data = json.dumps(merged_json)
+    return json_data
+
+#Input GeoJSON source that contains features for plotting.
+geosource = GeoJSONDataSource(geojson = json_data(1))
+
 def read_votes(path_data_file):  
     # Read data.
     df_votes = pd.read_excel(path_data_file, sheet_name='Form Responses 1')
@@ -36,7 +70,6 @@ def process_pokemon_votes(df_votes, pokemon_name):
 
 # Define paths.
 dir_path = os.path.dirname(os.path.realpath(__file__))
-
 PATH_DATA = pathlib.Path(dir_path)
 
 # Define parameters.
