@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import pathlib
 import requests
+import geopandas as gpd
 
 from PIL import Image
 from io import BytesIO
