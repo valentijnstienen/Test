@@ -113,22 +113,6 @@ tabs = Tabs(tabs=[tab1])
 
 
 
-def read_votes(path_data_file):  
-    # Read data.
-    df_votes = pd.read_excel(path_data_file, sheet_name='Form Responses 1')
-    # Rename columns.
-    df_votes.rename(columns={'Timestamp':'timestamp', 'What is your favourite Pokémon?':'vote'}, inplace=True)
-    # Remove any potential NaN.
-    df_votes.dropna(inplace=True)
-    return df_votes
-
-def process_pokemon_votes(df_votes, pokemon_name):
-    df_votes_pokemon = df_votes.query('vote=="' + pokemon_name + '"')
-    df_votes_pokemon = df_votes_pokemon.groupby(pd.Grouper(key='timestamp', freq='1h')).count()
-    df_votes_pokemon['timestamp'] = df_votes_pokemon.index
-    df_votes_pokemon['timestamp_h'] = df_votes_pokemon[['timestamp']].timestamp.dt.strftime('%H:%M')
-    df_votes_pokemon.index = np.arange(0, len(df_votes_pokemon))
-    return df_votes_pokemon
 
 
 # Define parameters.
@@ -139,10 +123,6 @@ PLOT_HEIGHT = 350
 df_ranked = pd.read_csv(PATH_DATA/'df_ranked.csv', index_col=0)
 df = df_ranked.sort_index()
 
-#
-df_votes = read_votes(PATH_DATA/'responses.xlsx')
-df_votes_init = process_pokemon_votes(df_votes, 'Bulbasaur')
-df_votes_max = process_pokemon_votes(df_votes, 'Charizard')
 
 #%%
 # Define tools.
