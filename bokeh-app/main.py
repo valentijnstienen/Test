@@ -71,7 +71,15 @@ tick_labels = {'0': '0', '5': '5', '10':'10', '20':'20', '30':'30','45':'45', '6
 #Add hover tool
 hover = HoverTool(tooltips = [ ('COROP', '@Name'),('Infected', '@Infected')])
 
+#Create color bar. 
+color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
+    border_line_color=None,location = (0,0), orientation = 'horizontal', major_label_overrides = tick_labels)
 
+#Create figure object.
+p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+p.xgrid.grid_line_color = None
+p.ygrid.grid_line_color = None
+p.axis.visible = False
 
 
 # Define parameters.
