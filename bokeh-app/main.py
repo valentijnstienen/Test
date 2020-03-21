@@ -242,7 +242,7 @@ def update(attr, old, new):
 
 
 select.on_change('value', update) 
-l = column(tabs, widgetbox(slider))
+l = column(tabs, select)
 #, sizing_mode='stretch_width')
 curdoc().add_root(l)
 
