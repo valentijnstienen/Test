@@ -84,7 +84,7 @@ def animate():
 
 # Make a slider object: slider 
 slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
-#slider.on_change('value', update_plot)    
+slider.on_change('value', update_plot)    
 
 # Make a button
 #button = Button(label='► Play', width=60)
@@ -240,7 +240,7 @@ def update(attr, old, new):
 
 
 select.on_change('value', update) 
-l = layout(column(tabs, slider), sizing_mode='stretch_width')
+l = layout(column(tabs, widgetbox(slider)), sizing_mode='stretch_width')
 curdoc().add_root(l)
 
 #layout = column(p,widgetbox(slider), widgetbox(button))
