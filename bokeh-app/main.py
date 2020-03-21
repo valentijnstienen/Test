@@ -235,4 +235,4 @@ def update(attr, old, new):
 
 select.on_change('value', update) 
 l = layout(row(column(select), tabs), sizing_mode='stretch_width')
-curdoc().add_root(l)
+#curdoc().add_root(l)
