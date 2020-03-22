@@ -4,8 +4,6 @@ import numpy as np
 import pathlib
 import geopandas as gpd
 import json
-#from shapely.geometry import shape, mapping
-#import shapely
 
 from bokeh.io import curdoc
 from bokeh.plotting import figure
@@ -21,7 +19,7 @@ PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
 df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
-geoj = gpd.read_file(PATH_DATA/'geoj_1.geojson')
+geoj = gpd.read_file(PATH_DATA/'geoj.geojson')
 
 #Define function that returns json_data for period selected by user.
 def json_data(selectedPeriod):
