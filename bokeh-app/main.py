@@ -30,12 +30,12 @@ def set_precision(coords, precision):
             result.append(set_precision(coord, precision))
     return result
 
-for i in range(0,len(geoj):
-    if i == 32:
-        continue       
-    test = mapping(geoj.loc[i,'geometry'])
-    test['coordinates'] = set_precision(test['coordinates'], 2)
-    geoj.loc[i,'geometry'] = shape(test)
+#for i in range(0,len(geoj):
+#    if i == 32:
+#        continue       
+#    test = mapping(geoj.loc[i,'geometry'])
+#    test['coordinates'] = set_precision(test['coordinates'], 2)
+#    geoj.loc[i,'geometry'] = shape(test)
 
 #Define function that returns json_data for period selected by user.
 def json_data(selectedPeriod):
