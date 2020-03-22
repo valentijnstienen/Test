@@ -30,7 +30,7 @@ def set_precision(coords, precision):
             result.append(set_precision(coord, precision))
     return result
 
-for i in range(0,len(geoj):
+for i in range(0,len(geoj)):
     if i == 32: 
         continue       
     test = mapping(geoj.loc[i,'geometry'])
