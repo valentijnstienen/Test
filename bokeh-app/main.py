@@ -35,7 +35,7 @@ polygons = []
 for p in geoj.loc[32,'geometry']:
     # Create new polygon
     p_new = mapping(p)
-    #p_new['coordinates'] = set_precision(p_new['coordinates'], 2)
+    p_new['coordinates'] = set_precision(p_new['coordinates'], 2)
     #polygons.append(shape(p_new))
 #mpol = shapely.geometry.MultiPolygon(polygons=polygons)
 
