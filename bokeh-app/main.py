@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 import pathlib
 import geopandas as gpd
 import json
@@ -31,12 +32,12 @@ def set_precision(coords, precision):
             result.append(set_precision(coord, precision))
     return result    
 
-#polygons = []
-#for p in geoj.loc[32,'geometry']:
+polygons = []
+for p in geoj.loc[32,'geometry']:
     # Create new polygon
-#    p_new = mapping(p)
-    #p_new['coordinates'] = set_precision(p_new['coordinates'], 2)
-#    polygons.append(shape(p_new))
+    p_new = mapping(p)
+    p_new['coordinates'] = set_precision(p_new['coordinates'], 2)
+    polygons.append(shape(p_new))
 #mpol = shapely.geometry.MultiPolygon(polygons=polygons)
 
 #geoj.loc[32, 'geometry'] = gpd.GeoDataFrame(geometry=[mpol]).geometry.values
