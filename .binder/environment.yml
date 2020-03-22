@@ -2,6 +2,7 @@ dependencies:
   - pandas=0.24.2
   - geopandas=0.6.1
   - json-c=0.13.1
+  - geos=3.7.1
   - xlrd=1.2.0
   - numpy=1.16.4
   - pathlib
