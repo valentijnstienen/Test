@@ -3,6 +3,7 @@ import pandas as pd
 import pathlib
 import geopandas as gpd
 import json
+from shapely.geometry import shape, mapping
 
 from bokeh.io import curdoc
 from bokeh.plotting import figure
