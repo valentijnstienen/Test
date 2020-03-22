@@ -5,6 +5,7 @@ dependencies:
   - xlrd=1.2.0
   - numpy=1.16.4
   - pathlib
+  - shapely
   - bokeh=1.2.0
   - requests
   - pip
