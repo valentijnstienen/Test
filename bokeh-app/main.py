@@ -3,8 +3,8 @@ import pandas as pd
 import pathlib
 import geopandas as gpd
 import json
-from shapely.geometry import shape, mapping
-#import shapely
+#from shapely.geometry import shape, mapping
+import shapely
 
 from bokeh.io import curdoc
 from bokeh.plotting import figure
@@ -42,11 +42,11 @@ def set_precision(coords, precision):
 #geoj.loc[32, 'geometry'] = gpd.GeoDataFrame(geometry=[mpol]).geometry.values
 
 for i in range(0,len(geoj)):
-    test = mapping(geoj.loc[i,'geometry'])
+    test = shapely.geometry.mapping(geoj.loc[i,'geometry'])
     if i == 32:
         continue      
     test['coordinates'] = set_precision(test['coordinates'], 2)
-    geoj.loc[i,'geometry'] = shape(test)
+    geoj.loc[i,'geometry'] = shapely.geometry.shape(test)
 
 
 #Define function that returns json_data for period selected by user.
