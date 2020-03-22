@@ -4,6 +4,7 @@ import pathlib
 import geopandas as gpd
 import json
 from shapely.geometry import shape, mapping
+import shapely
 
 from bokeh.io import curdoc
 from bokeh.plotting import figure
@@ -24,18 +25,29 @@ geoj = gpd.read_file(PATH_DATA/'corop.geojson')
 def set_precision(coords, precision):
     result = []
     try:
-        return round(coords, int(precision))
+        return np.round(coords, int(precision))
     except TypeError:
         for coord in coords:
             result.append(set_precision(coord, precision))
-    return result
+    return result    
+
+polygons = []
+for p in geoj.loc[32,'geometry']:
+    # Create new polygon
+    p_new = mapping(p)
+    p_new['coordinates'] = set_precision(p_new['coordinates'], 2)
+    polygons.append(shape(p_new))
+mpol = shapely.geometry.MultiPolygon(polygons=polygons)
+
+geoj.loc[32, 'geometry'] = gpd.GeoDataFrame(geometry=[mpol]).geometry.values
 
 for i in range(0,len(geoj)):
-    if i == 32: 
-        continue       
     test = mapping(geoj.loc[i,'geometry'])
+    if i == 32:
+        continue      
     test['coordinates'] = set_precision(test['coordinates'], 2)
     geoj.loc[i,'geometry'] = shape(test)
+
 
 #Define function that returns json_data for period selected by user.
 def json_data(selectedPeriod):
