@@ -4,7 +4,7 @@ dependencies:
   - json-c=0.13.1
   - shapely=1.6.4
   - xlrd=1.2.0
-  - numpy=1.16.4
+  - numpy=1.15.4
   - pathlib
   - bokeh=1.2.0
   - requests
