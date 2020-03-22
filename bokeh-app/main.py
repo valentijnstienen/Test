@@ -26,7 +26,7 @@ geoj = gpd.read_file(PATH_DATA/'corop.geojson')
 def set_precision(coords, precision):
     result = []
     try:
-        return np.round(coords, int(precision))
+        return round(coords, int(precision))
     except TypeError:
         for coord in coords:
             result.append(set_precision(coord, precision))
