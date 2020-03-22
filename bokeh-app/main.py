@@ -45,8 +45,8 @@ for i in range(0,len(geoj)):
     test = shapely.geometry.mapping(geoj.loc[i,'geometry'])
     if i == 32:
         continue      
-    test['coordinates'] = set_precision(test['coordinates'], 2)
-    #geoj.loc[i,'geometry'] = shapely.geometry.shape(test)
+    #test['coordinates'] = set_precision(test['coordinates'], 2)
+    geoj.loc[i,'geometry'] = shapely.geometry.shape(test)
 
 
 #Define function that returns json_data for period selected by user.
