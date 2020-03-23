@@ -19,7 +19,7 @@ PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
 df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
-geoj = gpd.read_file(PATH_DATA/'corop_simplified.geojson')
+geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
 
 #Define function that returns json_data for period selected by user.
 def json_data(selectedPeriod):
