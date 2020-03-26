@@ -63,6 +63,69 @@ color_mapper = LinearColorMapper(palette = palette, low = a, high = b, nan_color
 AGEGROUPS = df.AGEGROUP.unique()
 PERIODS = df.Time.unique()
 
+################################# UPDATE PLOT #####################################
+def update_plot(attr, old, new):
+    currentPeriod = slider.value
+    activeAgegroups = AGEGROUPS[checkbox_button_group.active]
+    selectedMeasure = select.value
+    
+    new_data_geojson = json_data(currentPeriod, activeAgegroups,selectedMeasure)
+    
+    p.tools[0].tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')]
+    
+    a, b = get_bounds(activeAgegroups,selectedMeasure)
+
+    try:
+        if (b-a<8):
+            color_mapper.low = a
+            color_bar.color_mapper.low = a
+            color_mapper.high = a+8
+            color_bar.color_mapper.high = a+8
+        else: 
+            color_mapper.low = a
+            color_bar.color_mapper.low = a
+            color_mapper.high = b
+            color_bar.color_mapper.high = b
+    except: 
+        color_mapper.low = 0
+        color_bar.color_mapper.low = 0
+        color_mapper.high = 8
+        color_bar.color_mapper.high = 8
+        
+    geosource.geojson = new_data_geojson
+    p.title.text = 'Number of infected people, period: %d' %currentPeriod
+##############################################################################
+
+################################# BUTTON #####################################
+def animate_update():
+    period = slider.value + 1
+    #if period > PERIODS[-1]:
+    #    period = PERIODS[0]
+    #slider.value = period
+    if period > PERIODS[-1]:
+        period = PERIODS[-1]
+        curdoc().remove_periodic_callback(callback_id)
+        button.label = '►' 
+        
+    slider.value = period
+    
+callback_id = None
+def animate():
+    global callback_id 
+    if button.label == '►':
+        button.label = '❚❚'
+        callback_id = curdoc().add_periodic_callback(animate_update, 300)
+    else:
+        curdoc().remove_periodic_callback(callback_id)
+        button.label = '►'   
+
+button = Button(label='►', width=30)
+button.on_click(animate) 
+##############################################################################
+
+
+
+
 
 #Load data 
 df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
