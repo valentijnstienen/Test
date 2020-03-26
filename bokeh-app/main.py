@@ -188,20 +188,20 @@ widgetbox(checkbox_button_group))
 #hover = HoverTool(tooltips = [ ('COROP', '@Name'),('Infected', '@Infected')])
 
 #Create color bar. 
-color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
-    border_line_color=None,location = (0,0), orientation = 'horizontal', major_label_overrides = tick_labels)
+#color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
+#    border_line_color=None,location = (0,0), orientation = 'horizontal', major_label_overrides = tick_labels)
 
 #Create figure object.
-p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
-p.xgrid.grid_line_color = None
-p.ygrid.grid_line_color = None
-p.axis.visible = False
+#p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+#p.xgrid.grid_line_color = None
+#p.ygrid.grid_line_color = None
+#p.axis.visible = False
 
 #Add patch renderer to figure. 
-p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'field' :'Infected', 'transform' : color_mapper}, line_width = 0.25, fill_alpha = 1)
+#p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'field' :'Infected', 'transform' : color_mapper}, line_width = 0.25, fill_alpha = 1)
 
 #Specify layout
-p.add_layout(color_bar, 'below')
+#p.add_layout(color_bar, 'below')
 
 # Define the callback function: update_plot
 #def update_plot(attr, old, new):
@@ -210,31 +210,31 @@ p.add_layout(color_bar, 'below')
 #    geosource.geojson = new_data
 #    p.title.text = 'Number of infected people, period: %d' %period
 
-periods = df.Period.unique()
+#periods = df.Period.unique()
 
-def animate_update():
-    period = slider.value + 1
-    if period > periods[-1]:
-        period = periods[0]
-    slider.value = period
+#def animate_update():
+#    period = slider.value + 1
+#    if period > periods[-1]:
+#        period = periods[0]
+#    slider.value = period
 
-callback_id = None
-def animate():
-    global callback_id 
-    if button.label == '► Play':
-        button.label = '❚❚ Pause'
-        callback_id = curdoc().add_periodic_callback(animate_update, 600)
-    else:
-        curdoc().remove_periodic_callback(callback_id)
-        button.label = '► Play'   
+#callback_id = None
+#def animate():
+#    global callback_id 
+#    if button.label == '► Play':
+#        button.label = '❚❚ Pause'
+#        callback_id = curdoc().add_periodic_callback(animate_update, 600)
+#    else:
+#        curdoc().remove_periodic_callback(callback_id)
+#        button.label = '► Play'   
 
 # Make a button
-button = Button(label='► Play', width=60)
-button.on_click(animate)  
+#button = Button(label='► Play', width=60)
+#button.on_click(animate)  
     
 # Make a slider object: slider 
-slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
-slider.on_change('value', update_plot) 
+#slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
+#slider.on_change('value', update_plot) 
 
 #l = column(p,widgetbox(slider),widgetbox(button))
 curdoc().add_root(l)
