@@ -56,9 +56,23 @@ a,b = get_bounds(['AGE_0_18'],'INFECTED_NOSYMPTOMS_NOTCONTAGIOUS')
 #Define a color palette.
 palette = brewer['YlOrRd'][8]
 palette = palette[::-1]
-color_mapper = LinearColorMapper(palette = palette, low = a, high = b, nan_color = '#d9d9d9')
-#tick_labels = {'0': '0', '5': '5', '10':'10', '20':'20', '30':'30','45':'45', '60':'60', '70': '>70'}
 
+#Create color bar. 
+color_mapper = LinearColorMapper(palette = palette, low = a, high = b, nan_color = '#d9d9d9')
+color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
+    border_line_color=None,location = (0,0), orientation = 'horizontal')#, major_label_overrides = tick_labels)
+
+if (b-a<8):
+    color_mapper.low = a
+    color_bar.color_mapper.low = a
+    color_mapper.high = a+8
+    color_bar.color_mapper.high = a+8
+else: 
+    color_mapper.low = a
+    color_bar.color_mapper.low = a
+    color_mapper.high = b
+    color_bar.color_mapper.high = b
+    
 # Initialization
 AGEGROUPS = df.AGEGROUP.unique()
 PERIODS = df.Time.unique()
@@ -134,9 +148,7 @@ checkbox_button_group.on_change('active',update_plot)
 
 #hover = HoverTool(tooltips = [ ('COROP', '@{OBJECTID}'),('Infected', '@Infected_plus'), ('Age group', '@AGEGROUP')])
 
-#Create color bar. 
-color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
-    border_line_color=None,location = (0,0), orientation = 'horizontal')#, major_label_overrides = tick_labels)
+
 
 hover = HoverTool(tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')])
 
