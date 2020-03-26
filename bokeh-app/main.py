@@ -11,7 +11,10 @@ from bokeh.layouts import layout, row, column, widgetbox
 from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
 from bokeh.models.tools import HoverTool
 from bokeh.models.widgets import Select, Slider, Button
+from bokeh.models import CheckboxButtonGroup
 from bokeh.palettes import brewer
+from bokeh.models import Div 
+from bokeh.models.callbacks import CustomJS
 
 # Define paths.
 dir_path = os.path.dirname(os.path.realpath(__file__))
