@@ -21,6 +21,50 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
+df = pd.read_csv(PATH_DATA/'input_groot.csv', sep = ",")
+geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
+
+# Initialization
+max_time = df.Time.max()
+df['Infected'] = df.INFECTED_NOSYMPTOMS_NOTCONTAGIOUS
+df['Infected_plus'] = df.INFECTED_NOSYMPTOMS_NOTCONTAGIOUS
+
+#Define function that returns json_data for period selected by user.
+def json_data(selectedPeriod, selectedAgegroups, selectedMeasure):
+    period = selectedPeriod
+    df_age = df[df.AGEGROUP.isin(selectedAgegroups)]
+    df_period = df_age[df_age.Time == period].copy()
+    df_period['Infected'] = df_period[selectedMeasure]
+    df_period.Infected_plus = df_period.groupby(['OBJECTID'], sort = False).sum().Infected.repeat(len(selectedAgegroups)).values
+    merged = geoj.merge(df_period, left_on = 'OBJECTID', right_on = 'OBJECTID', how = 'left')
+    merged_json = json.loads(merged.to_json())
+    json_data = json.dumps(merged_json)
+    return json_data 
+
+def get_bounds(selectedAgegroups, selectedMeasure):
+    df_age = df[df.AGEGROUP.isin(selectedAgegroups)].copy()
+    df_age.Infected = df_age[selectedMeasure]
+    df_age.Infected_plus = df_age.groupby(['OBJECTID', 'Time'], sort = False).sum().Infected.repeat(len(selectedAgegroups)).values
+    test = df_age.Infected_plus
+    mini = test.min()
+    maxi = test.max()
+    return mini, maxi
+
+#Input GeoJSON source that contains features for plotting.
+geosource = GeoJSONDataSource(geojson = json_data(0, ['AGE_0_18'], 'INFECTED_NOSYMPTOMS_NOTCONTAGIOUS'))
+a,b = get_bounds(['AGE_0_18'],'INFECTED_NOSYMPTOMS_NOTCONTAGIOUS')
+#Define a color palette.
+palette = brewer['YlOrRd'][8]
+palette = palette[::-1]
+color_mapper = LinearColorMapper(palette = palette, low = a, high = b, nan_color = '#d9d9d9')
+#tick_labels = {'0': '0', '5': '5', '10':'10', '20':'20', '30':'30','45':'45', '60':'60', '70': '>70'}
+
+# Initialization
+AGEGROUPS = df.AGEGROUP.unique()
+PERIODS = df.Time.unique()
+
+
+#Load data 
 df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
 geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
 
