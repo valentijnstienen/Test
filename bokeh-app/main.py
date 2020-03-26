@@ -163,29 +163,29 @@ widgetbox(checkbox_button_group))
 
 
 #Load data 
-df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
-geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
+#df = pd.read_csv(PATH_DATA/'infected.csv', sep = ";")
+#geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
 
 #Define function that returns json_data for period selected by user.
-def json_data(selectedPeriod):
-    period = selectedPeriod
-    df_period = df[df['Period'] == period]
-    merged = geoj.merge(df_period, left_on = 'OBJECTID', right_on = 'OBJECTID', how = 'left')
-    merged_json = json.loads(merged.to_json())
-    json_data = json.dumps(merged_json)
-    return json_data
+#def json_data(selectedPeriod):
+#    period = selectedPeriod
+#    df_period = df[df['Period'] == period]
+#    merged = geoj.merge(df_period, left_on = 'OBJECTID', right_on = 'OBJECTID', how = 'left')
+#    merged_json = json.loads(merged.to_json())
+#    json_data = json.dumps(merged_json)
+#    return json_data
 
 #Input GeoJSON source that contains features for plotting.
-geosource = GeoJSONDataSource(geojson = json_data(1))
+#geosource = GeoJSONDataSource(geojson = json_data(1))
 
 #Define a color palette.
-palette = brewer['YlOrRd'][7]
-palette = palette[::-1]
-color_mapper = LinearColorMapper(palette = palette, low = 0, high = 70, nan_color = '#d9d9d9')
-tick_labels = {'0': '0', '5': '5', '10':'10', '20':'20', '30':'30','45':'45', '60':'60', '70': '>70'}
+#palette = brewer['YlOrRd'][7]
+#palette = palette[::-1]
+#color_mapper = LinearColorMapper(palette = palette, low = 0, high = 70, nan_color = '#d9d9d9')
+#tick_labels = {'0': '0', '5': '5', '10':'10', '20':'20', '30':'30','45':'45', '60':'60', '70': '>70'}
 
 #Add hover tool
-hover = HoverTool(tooltips = [ ('COROP', '@Name'),('Infected', '@Infected')])
+#hover = HoverTool(tooltips = [ ('COROP', '@Name'),('Infected', '@Infected')])
 
 #Create color bar. 
 color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
@@ -204,11 +204,11 @@ p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'fie
 p.add_layout(color_bar, 'below')
 
 # Define the callback function: update_plot
-def update_plot(attr, old, new):
-    period = slider.value
-    new_data = json_data(period)
-    geosource.geojson = new_data
-    p.title.text = 'Number of infected people, period: %d' %period
+#def update_plot(attr, old, new):
+#    period = slider.value
+#    new_data = json_data(period)
+#    geosource.geojson = new_data
+#    p.title.text = 'Number of infected people, period: %d' %period
 
 periods = df.Period.unique()
 
