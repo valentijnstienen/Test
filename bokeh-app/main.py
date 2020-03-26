@@ -126,7 +126,7 @@ def animate():
     global callback_id 
     if button.label == '►':
         button.label = '❚❚'
-        callback_id = curdoc().add_periodic_callback(animate_update, 300)
+        callback_id = curdoc().add_periodic_callback(animate_update, 600)
     else:
         curdoc().remove_periodic_callback(callback_id)
         button.label = '►'   
