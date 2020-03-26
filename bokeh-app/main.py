@@ -123,7 +123,42 @@ button = Button(label='►', width=30)
 button.on_click(animate) 
 ##############################################################################
 
+############################### INPUT ###################################
+select = Select(title="Measure", options=list(df.columns.values)[2:10], value="INFECTED_NOSYMPTOMS_NOTCONTAGIOUS")
+select.on_change('value', update_plot)
 
+slider = Slider(title = 'Period',start = 0, end = max_time, step = 1, value = 0)
+slider.on_change('value', update_plot) 
+
+checkbox_button_group = CheckboxButtonGroup(labels=list(AGEGROUPS), active=[0])
+checkbox_button_group.on_change('active',update_plot)
+##############################################################################
+
+#hover = HoverTool(tooltips = [ ('COROP', '@{OBJECTID}'),('Infected', '@Infected_plus'), ('Age group', '@AGEGROUP')])
+
+#Create color bar. 
+color_bar = ColorBar(color_mapper=color_mapper, label_standoff=8,width = 450, height = 20,
+    border_line_color=None,location = (0,0), orientation = 'horizontal')#, major_label_overrides = tick_labels)
+
+hover = HoverTool(tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')])
+
+
+#Create figure object.
+p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+p.xgrid.grid_line_color = None
+p.ygrid.grid_line_color = None
+p.axis.visible = False
+
+#Add patch renderer to figure. 
+
+p.patches('xs','ys', source = geosource, line_color = 'black',fill_color = {'field' : 'Infected_plus', 'transform' : color_mapper}, line_width = 0.25, fill_alpha = 1)
+
+#Specify layout
+p.add_layout(color_bar, 'below')
+
+l = column(row(p, widgetbox(select)),
+row(column(Div(text = '', height = 1),widgetbox(button)), Div(text = '', width = 2), widgetbox(slider)),
+widgetbox(checkbox_button_group))
 
 
 
@@ -201,5 +236,5 @@ button.on_click(animate)
 slider = Slider(title = 'Period',start = 1, end = 12, step = 1, value = 1)
 slider.on_change('value', update_plot) 
 
-l = column(p,widgetbox(slider),widgetbox(button))
+#l = column(p,widgetbox(slider),widgetbox(button))
 curdoc().add_root(l)
