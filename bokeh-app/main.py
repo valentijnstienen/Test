@@ -107,7 +107,7 @@ def update_plot(attr, old, new):
         color_bar.color_mapper.high = 8
         
     geosource.geojson = new_data_geojson
-    p.title.text = 'Number of infected people, period: %d' %currentPeriod
+    p.title.text = 'Number of people: ' + selectedMeasure + ', period: %d' %currentPeriod
 ##############################################################################
 
 ################################# BUTTON #####################################
@@ -154,7 +154,7 @@ hover = HoverTool(tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:f
 
 
 #Create figure object.
-p = figure(title = 'Number of infected people, period: 1', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+p = figure(title = 'Number of people: INFECTED_NOSYMPTOMS_NOTCONTAGIOUS, period: 0', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
