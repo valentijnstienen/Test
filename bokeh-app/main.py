@@ -118,7 +118,7 @@ button.on_click(animate)
 select = Select(title="Measure", options=list(df.columns.values)[2:11], value=init_measure)
 select.on_change('value', update_plot)
 
-slider = Slider(title = 'Period',start = 0, end = max_time, step = 1, value = init_period)
+slider = Slider(title = 'Period',start = 0, end = max_time, step = 10, value = init_period)
 slider.on_change('value', update_plot) 
 
 checkbox_button_group = CheckboxButtonGroup(labels=list(AGEGROUPS), active=[0])
