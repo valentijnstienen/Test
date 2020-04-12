@@ -11,12 +11,13 @@ from bokeh.layouts import layout, row, column, widgetbox
 from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
 from bokeh.models.tools import HoverTool
 from bokeh.models.widgets import Select, Slider, Button
-from bokeh.models import CheckboxButtonGroup
+from bokeh.models import CheckboxButtonGroup, Toggle, RadioButtonGroup
 from bokeh.palettes import brewer
 from bokeh.models import Div, Range1d, ColumnDataSource
 from bokeh.models.callbacks import CustomJS
 from bokeh.palettes import Spectral11
 from bokeh.models.formatters import NumeralTickFormatter
+
 
 # Define paths.
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -24,6 +25,8 @@ PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
 df = pd.read_csv(PATH_DATA/'input_0204.csv', sep = ",")
+df = df[df.Time%2 == 0]
+df.Time = df.Time/2
 hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo.csv', sep = ",", index_col =0)
 geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
 
@@ -33,15 +36,20 @@ df['Infected'] = df.INFECTED_NOSYMPTOMS_NOTCONTAGIOUS
 df['Infected_plus'] = df.INFECTED_NOSYMPTOMS_NOTCONTAGIOUS
 AGEGROUPS = df.AGEGROUP.unique()
 PERIODS = df.Time.unique()
+TIMES = ['Day', 'Week']
 
 # Initial choices
 init_period = 0
 init_agegroups = ['Age_0_9']
 init_measure = 'INFECTED_NOSYMPTOMS_NOTCONTAGIOUS'
+init_time = 'Day'
 
 #Define function that returns json_data for period selected by user.
 def json_data(selectedPeriod, selectedAgegroups, selectedMeasure):
     df_selected = df.loc[:, (df.columns.isin(['AGEGROUP', 'Time', selectedMeasure, 'NAME', 'OBJECTID', 'Infected', 'Infected_plus']))]
+    #if selectedTime == 0:
+    #    df_selected = df_selected[(df_selected.AGEGROUP.isin(selectedAgegroups)) & (df_selected.Time == selectedPeriod) & df_selected.Time%7 == 0].copy()
+    #else:
     df_selected = df_selected[(df_selected.AGEGROUP.isin(selectedAgegroups)) & (df_selected.Time == selectedPeriod)].copy()
     df_selected['Infected'] = df_selected[selectedMeasure]
     df_selected.Infected_plus = df_selected.groupby(['OBJECTID'], sort = False).sum().Infected.repeat(len(selectedAgegroups)).values
@@ -62,13 +70,14 @@ def update_plot(attr, old, new):
     selectedPeriod = slider.value
     selectedAgegroups = AGEGROUPS[checkbox_button_group.active]
     selectedMeasure = select.value
+    #selectedTime = TIMES[radio_button_group.active]
     
     # Get relevant data
     new_data, new_json_data = json_data(selectedPeriod, selectedAgegroups,selectedMeasure)
     
     # Update map
     geosource.geojson = new_json_data # Map
-    p.title.text = 'Number of people: ' + selectedMeasure + ', period: %d' %selectedPeriod # Title
+    p.title.text = 'Number of people: ' + selectedMeasure + ', day: %d' %selectedPeriod # Title
     p.tools[0].tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')] # Hovertool
     
     # Update colorbar
@@ -93,32 +102,47 @@ def update_plot(attr, old, new):
 
 ################################# BUTTON #####################################
 def animate_update():
-    period = slider.value + 10
+    global callback_id 
+    period = slider.value + 1
+    
+    curdoc().remove_periodic_callback(callback_id)
+    if toggle.active:
+        speed = 300
+    else:
+        speed = 1000
+    callback_id = curdoc().add_periodic_callback(animate_update, speed)
+    
     if period > PERIODS[-1]:
         period = PERIODS[-1]
         curdoc().remove_periodic_callback(callback_id)
         button.label = '►'   
     slider.value = period
 
-callback_id = None
+global speed
+
 def animate():
     global callback_id 
     if button.label == '►':
-        button.label = '❚❚'
-        callback_id = curdoc().add_periodic_callback(animate_update, 500)
+        button.label = '❚❚'          
+        callback_id = curdoc().add_periodic_callback(animate_update, 1000)
     else:
         curdoc().remove_periodic_callback(callback_id)
         button.label = '►'   
-
+        
 button = Button(label='►', width=30)
 button.on_click(animate) 
+
+toggle = Toggle(label="►►", button_type="success", width = 20)
+
+#radio_button_group = RadioButtonGroup(labels=["Day", "Week"], active=0, width = 50)
+#radio_button_group.on_change('active', update_plot)
 ##############################################################################
 
 ############################### INPUT ########################################
 select = Select(title="Measure", options=list(df.columns.values)[2:11], value=init_measure)
 select.on_change('value', update_plot)
 
-slider = Slider(title = 'Period',start = 0, end = max_time, step = 10, value = init_period)
+slider = Slider(title = 'Day',start = 0, end = max_time, step = 1, value = init_period)
 slider.on_change('value', update_plot) 
 
 checkbox_button_group = CheckboxButtonGroup(labels=list(AGEGROUPS), active=[0])
@@ -161,7 +185,7 @@ update_colorbar(a,b)
 
 #Create figure object.
 hover = HoverTool(tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')])
-p = figure(title = 'Number of people: INFECTED_NOSYMPTOMS_NOTCONTAGIOUS, period: 0', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+p = figure(title = 'Number of people: INFECTED_NOSYMPTOMS_NOTCONTAGIOUS, day: 0', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
@@ -215,7 +239,7 @@ plot.yaxis.formatter = NumeralTickFormatter(format="0,0")
 
 
 # set up layout
-slider_row = row(column(Div(text = '', height = 1),button), Div(text = '', width = 2), slider)
+slider_row = row(column(Div(text = '', height = 1),button), Div(text = '', width = 2), slider, column(Div(text = '', height = 1),toggle), Div(text = '', width = 25))#, column(Div(text = '', height = 1),radio_button_group))
 first_column = column(p, slider_row, checkbox_button_group)
 second_column = column(select, plot)#, ic_bar)
 l = row(first_column, second_column)
