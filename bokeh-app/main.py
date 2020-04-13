@@ -165,7 +165,7 @@ options_s = list(['Healthy', 'Infected without symptoms (not contagious)', 'Infe
 init_measure_s = options_s[MEASURES.index(init_measure)]
 #select = Select(title="Measure", options=list(df.columns.values)[2:11], value=init_measure)
 
-select = Select(title="Measure", options=options_s, value=init_measure_s)
+select = Select(title="Measure", options=options_s, value=init_measure_s, width = 320)
 select.on_change('value', update_plot)
 
 slider = Slider(title = 'Day',start = 0, end = max_time, step = 1, value = init_period)
@@ -221,7 +221,7 @@ p.add_layout(color_bar, 'below')
 ##############################################################################
 
 ################################ LINE PLOT ###################################
-plot = figure(plot_height=150, plot_width=500, title="Line chart",x_range=[0, max_time], y_range=[0, 10], toolbar_location=None)
+plot = figure(plot_height=150, title="Line chart",x_range=[0, max_time], y_range=[0, 10], toolbar_location=None)
 time_period, numberInfected = [],[]
 source = ColumnDataSource(data=dict(x = time_period, y = numberInfected))
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6,)          
@@ -243,7 +243,6 @@ ic_bar.hbar(y='y', right = 'x_1', left = 'x_2', source = source_perf, width=8 ,c
 ic_bar.ygrid.grid_line_color = None
 tab1 = Panel(child=ic_bar, title="Absolute")
 
-
 ic_bar_percent = figure(y_range=list(hosp_info.columns)[1:41], plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
 source_ic_percent = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = list(hosp_info.columns)[1:41]))
 ic_bar_percent.hbar(y='y', right = 'x', source = source_ic_percent, width=5)
@@ -252,7 +251,6 @@ ic_bar_percent.x_range.start, ic_bar_percent.x_range.end = 0, 105
 tab2 = Panel(child=ic_bar_percent, title="% IC capacity")
 
 tabs_icbar = Tabs(tabs=[ tab1, tab2 ])
-
 ##############################################################################
 
 
@@ -284,9 +282,10 @@ tabs_icbar = Tabs(tabs=[ tab1, tab2 ])
 
 
 # set up layout
-slider_row = row(column(Div(text = '', height = 1),button), Div(text = '', width = 2), slider, column(Div(text = '', height = 1),toggle), Div(text = '', width = 25))#, column(Div(text = '', height = 1),radio_button_group))
-first_column = column(p, slider_row, checkbox_button_group)
-second_column = column(select, plot, tabs_icbar)
-l = row(first_column, second_column)
+slider_row = row(column(Div(text = '', height = 1),button), Div(text = '', width = 2), slider, column(Div(text = '', height = 1),toggle))#, column(Div(text = '', height = 1),radio_button_group))
+first_column = column(p, slider_row, Div(text = '', height = 1),  checkbox_button_group)
+second_column = column(select, row(Div(text = '', width = 4),plot),Div(text = '', height = 2), tabs_icbar)
+l = row(first_column, Div(text = '', width = 2), second_column)
 
 curdoc().add_root(l)
+
