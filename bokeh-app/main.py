@@ -11,7 +11,7 @@ from bokeh.layouts import layout, row, column, widgetbox
 from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
 from bokeh.models.tools import HoverTool
 from bokeh.models.widgets import Select, Slider, Button
-from bokeh.models import CheckboxButtonGroup, Toggle, RadioButtonGroup
+from bokeh.models import CheckboxButtonGroup, Toggle, RadioButtonGroup, Panel, Tabs
 from bokeh.palettes import brewer
 from bokeh.models import Div, Range1d, ColumnDataSource
 from bokeh.models.callbacks import CustomJS
@@ -27,7 +27,9 @@ PATH_DATA = pathlib.Path(dir_path)
 df = pd.read_csv(PATH_DATA/'input_0204.csv', sep = ",")
 df = df[df.Time%2 == 0]
 df.Time = df.Time/2
-hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo.csv', sep = ",", index_col =0)
+hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo.csv', sep = ",")#, index_col =0)
+hosp_info = hosp_info[hosp_info.Time%2 == 0]
+hosp_info.Time = hosp_info.Time/2
 geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
 
 # Initialization
@@ -37,6 +39,7 @@ df['Infected_plus'] = df.INFECTED_NOSYMPTOMS_NOTCONTAGIOUS
 AGEGROUPS = df.AGEGROUP.unique()
 PERIODS = df.Time.unique()
 TIMES = ['Day', 'Week']
+MEASURES = list(df.columns.values)[2:11]
 
 # Initial choices
 init_period = 0
@@ -69,7 +72,7 @@ def update_plot(attr, old, new):
     # Get input
     selectedPeriod = slider.value
     selectedAgegroups = AGEGROUPS[checkbox_button_group.active]
-    selectedMeasure = select.value
+    selectedMeasure = MEASURES[options_s.index(select.value)]
     #selectedTime = TIMES[radio_button_group.active]
     
     # Get relevant data
@@ -77,7 +80,7 @@ def update_plot(attr, old, new):
     
     # Update map
     geosource.geojson = new_json_data # Map
-    p.title.text = 'Number of people: ' + selectedMeasure + ', day: %d' %selectedPeriod # Title
+    p.title.text = 'Number of people: ' + options_s[MEASURES.index(selectedMeasure)] + ', day: %d' %selectedPeriod # Title
     p.tools[0].tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')] # Hovertool
     
     # Update colorbar
@@ -98,6 +101,25 @@ def update_plot(attr, old, new):
     except:
         plot.y_range.start = 0
         plot.y_range.end = 8
+    
+    # Update ic bar chart
+    hospitals_val = hosp_info[hosp_info.Time == selectedPeriod].iloc[:,1:41]
+    capacities = hosp_info[hosp_info.Time == 100].iloc[0,1:41]
+    
+    # Sort by
+    #Alternatives : sorted_hospitals = sorted(hospitals, key = lambda x: capacities.values[hospitals.index(x)] - hospitals_val.iloc[0,hospitals.index(x)]) # Number of IC spots available
+    #               sorted_hospitals = sorted(hospitals, key = lambda x: (-capacities.values[hospitals.index(x)] + hospitals_val.iloc[0,hospitals.index(x)],                 hospitals_val.iloc[0,hospitals.index(x)])) #Combined
+    sorted_hospitals = sorted(hospitals, key = lambda x: hospitals_val.iloc[0,hospitals.index(x)]) # Absolute number of patients
+    sorted_hospitals_percent = sorted(hospitals, key = lambda x: (hospitals_val.iloc[0,hospitals.index(x)]/(capacities.values[hospitals.index(x)]+0.01), hospitals_val.iloc[0,hospitals.index(x)])) #Combined Percentage full
+    
+    # Show
+    source_ic.data = dict(x = hospitals_val.loc[:,sorted_hospitals].values[0], y = sorted_hospitals) # Number of people on IC
+    source_ic_percent.data = dict(x = 100*np.array(hospitals_val.loc[:,sorted_hospitals_percent].values[0], dtype=np.float)/np.array((capacities[sorted_hospitals_percent]+0.01), dtype=np.float), y = sorted_hospitals_percent) # Percentage full
+    
+    ic_bar.y_range.factors = sorted_hospitals
+    ic_bar_percent.y_range.factors = sorted_hospitals_percent
+    
+    
 ##############################################################################
 
 ################################# BUTTON #####################################
@@ -139,13 +161,18 @@ toggle = Toggle(label="►►", button_type="success", width = 20)
 ##############################################################################
 
 ############################### INPUT ########################################
-select = Select(title="Measure", options=list(df.columns.values)[2:11], value=init_measure)
+options_s = list(['Healthy', 'Infected without symptoms (not contagious)', 'Infected without symptoms (contagious)', 'Infected with mild symptoms', 'IC', 'Not eligible for an IC spot','Waiting for an IC spot', 'Cured', 'Dead'])
+init_measure_s = options_s[MEASURES.index(init_measure)]
+#select = Select(title="Measure", options=list(df.columns.values)[2:11], value=init_measure)
+
+select = Select(title="Measure", options=options_s, value=init_measure_s)
 select.on_change('value', update_plot)
 
 slider = Slider(title = 'Day',start = 0, end = max_time, step = 1, value = init_period)
 slider.on_change('value', update_plot) 
 
-checkbox_button_group = CheckboxButtonGroup(labels=list(AGEGROUPS), active=[0])
+labels_age = [i.split('Age_')[1].replace('_',' - ') for i in list(AGEGROUPS)]
+checkbox_button_group = CheckboxButtonGroup(labels=labels_age, active=[0] )
 checkbox_button_group.on_change('active', update_plot)
 ##############################################################################
 
@@ -185,7 +212,7 @@ update_colorbar(a,b)
 
 #Create figure object.
 hover = HoverTool(tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')])
-p = figure(title = 'Number of people: INFECTED_NOSYMPTOMS_NOTCONTAGIOUS, day: 0', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
+p = figure(title = 'Number of people: ' + init_measure_s + ', day: 0', plot_height = 650 , plot_width = 550, toolbar_location = None, tools = [hover])
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 p.axis.visible = False
@@ -204,9 +231,27 @@ plot.yaxis.formatter = NumeralTickFormatter(format="0,0")
 ##############################################################################
 
 ################################ BAR CHART ###################################
-#ic_bar = figure(y_range=list(hosp_info.columns)[:-1], plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
-#ic_bar.hbar(y=list(hosp_info.columns), right=hosp_info.iloc[130,:-1], width=5)
-#ic_bar.ygrid.grid_line_color = None
+hospitals = list(hosp_info.columns)[1:41]
+
+ic_bar = figure(y_range=list(hosp_info.columns)[1:41], plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
+source_ic = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = list(hosp_info.columns)[1:41]))
+ic_bar.hbar(y='y', right = 'x', source = source_ic, width=5)
+ic_bar.ygrid.grid_line_color = None
+ic_bar.x_range.start, ic_bar.x_range.end = 0, 125
+source_perf = ColumnDataSource(data=dict(x_1 = hosp_info.iloc[100,1:41]+.5, x_2 = hosp_info.iloc[100,1:41]-.5 , y = list(hosp_info.columns)[1:41]))
+ic_bar.hbar(y='y', right = 'x_1', left = 'x_2', source = source_perf, width=8 ,color = 'red')
+ic_bar.ygrid.grid_line_color = None
+tab1 = Panel(child=ic_bar, title="Absolute")
+
+
+ic_bar_percent = figure(y_range=list(hosp_info.columns)[1:41], plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
+source_ic_percent = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = list(hosp_info.columns)[1:41]))
+ic_bar_percent.hbar(y='y', right = 'x', source = source_ic_percent, width=5)
+ic_bar_percent.ygrid.grid_line_color = None
+ic_bar_percent.x_range.start, ic_bar_percent.x_range.end = 0, 105
+tab2 = Panel(child=ic_bar_percent, title="% IC capacity")
+
+tabs_icbar = Tabs(tabs=[ tab1, tab2 ])
 
 ##############################################################################
 
@@ -241,8 +286,7 @@ plot.yaxis.formatter = NumeralTickFormatter(format="0,0")
 # set up layout
 slider_row = row(column(Div(text = '', height = 1),button), Div(text = '', width = 2), slider, column(Div(text = '', height = 1),toggle), Div(text = '', width = 25))#, column(Div(text = '', height = 1),radio_button_group))
 first_column = column(p, slider_row, checkbox_button_group)
-second_column = column(select, plot)#, ic_bar)
+second_column = column(select, plot, tabs_icbar)
 l = row(first_column, second_column)
 
 curdoc().add_root(l)
-
