@@ -24,10 +24,11 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
-df = pd.read_csv(PATH_DATA/'input_0204.csv', sep = ",")
-df = df[df.Time%2 == 0]
-df.Time = df.Time/2
-hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo.csv', sep = ",")#, index_col =0)
+df = pd.read_csv(PATH_DATA/'input_1404_new.csv', sep = ",")
+#pd.to_numeric(df.Time)
+#df = df[df.Time%2 == 0]
+#df.Time = df.Time/2
+hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo_test4_1404.csv', sep = ",")#, index_col =0)
 hosp_info = hosp_info[hosp_info.Time%2 == 0]
 hosp_info.Time = hosp_info.Time/2
 geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
