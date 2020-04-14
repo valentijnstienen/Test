@@ -238,7 +238,7 @@ ic_bar = figure(y_range=list(hosp_info.columns)[1:41], plot_height=500, title="I
 source_ic = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = list(hosp_info.columns)[1:41]))
 ic_bar.hbar(y='y', right = 'x', source = source_ic, width=5)
 ic_bar.ygrid.grid_line_color = None
-ic_bar.x_range.start, ic_bar.x_range.end = 0, 125
+ic_bar.x_range.start, ic_bar.x_range.end = 0, 250
 source_perf = ColumnDataSource(data=dict(x_1 = hosp_info.iloc[100,1:41]+.5, x_2 = hosp_info.iloc[100,1:41]-.5 , y = list(hosp_info.columns)[1:41]))
 ic_bar.hbar(y='y', right = 'x_1', left = 'x_2', source = source_perf, width=8 ,color = 'red')
 ic_bar.ygrid.grid_line_color = None
