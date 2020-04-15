@@ -4,6 +4,7 @@ import numpy as np
 import pathlib
 import geopandas as gpd
 import json
+import time
 
 from bokeh.io import curdoc
 from bokeh.plotting import figure
@@ -88,6 +89,8 @@ def update_colorbar(selectedAgegroups, selectedMeasure):
 ################################# UPDATE PLOT #####################################
 old_slidervalue = 0
 def update_plot(attr, old, new):
+    start = time.time()
+    
     global old_slidervalue
     
     # Get input
@@ -141,6 +144,9 @@ def update_plot(attr, old, new):
     
     ic_bar.y_range.factors = sorted_hospitals
     ic_bar_percent.y_range.factors = sorted_hospitals_percent
+    
+    end = time.time()
+    print(end - start)
 ##############################################################################
 
 ################################# BUTTON #####################################
@@ -158,7 +164,7 @@ def animate_update():
     if period > PERIODS[-1]:
         period = PERIODS[-1]
         curdoc().remove_periodic_callback(callback_id)
-        button.label = '►'   
+        button.label = '⟲'   
     slider.value = period
 
 global speed
@@ -166,10 +172,16 @@ global speed
 def animate():
     global callback_id 
     if button.label == '►':
-        button.label = '❚❚'          
+        button.label = '❚❚'
+        slider.disabled = True        
         callback_id = curdoc().add_periodic_callback(animate_update, 400)
+    elif button.label == '⟲':
+        slider.disabled = False
+        slider.value = 0
+        button.label = '►'
     else:
         curdoc().remove_periodic_callback(callback_id)
+        slider.disabled = False
         button.label = '►'   
         
 button = Button(label='►', width=30)
