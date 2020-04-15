@@ -24,8 +24,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
-df = pd.read_csv(PATH_DATA/'input_1404_new.csv', sep = ",")
-hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo_test4_1404.csv', sep = ",")#, index_col =0)
+df = pd.read_csv(PATH_DATA/'input_1504.csv', sep = ",")
+hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo_valentijn1.csv', sep = ",")#, index_col =0)
 hosp_info = hosp_info[hosp_info.Time%2 == 0]
 hosp_info.Time = hosp_info.Time/2
 geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
@@ -130,7 +130,7 @@ def update_plot(attr, old, new):
     # Update ic bar chart
     hospitals_val = hosp_info[hosp_info.Time == selectedPeriod].iloc[:,1:41]
     capacities = hosp_info[hosp_info.Time == 100].iloc[0,1:41]
-    
+    #hospitals_fig = list(hosp_info.columns)[1:41]
     # Sort by
     # Alternatives : sorted_hospitals = sorted(hospitals, key = lambda x: capacities.values[hospitals.index(x)] - hospitals_val.iloc[0,hospitals.index(x)]) # Number of IC spots available
     #                sorted_hospitals = sorted(hospitals, key = lambda x: (-capacities.values[hospitals.index(x)] + hospitals_val.iloc[0,hospitals.index(x)],                                
@@ -246,20 +246,31 @@ plot.yaxis.formatter = NumeralTickFormatter(format="0,0")
 ##############################################################################
 
 ################################ BAR CHART ###################################
+#hospitals_NAME = df.NAME.unique()
 hospitals = list(hosp_info.columns)[1:41]
+#print(hosp_info.head(5))
+#l1 = hosp_info.columns.values[1:41]
+#l2 = ['Time']
+#l3 = [*l1, *l2]
+#print(l3)
 
-ic_bar = figure(y_range=list(hosp_info.columns)[1:41], plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
-source_ic = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = list(hosp_info.columns)[1:41]))
+#print(list(['Time']).extend(list(df.NAME.unique())).extend(list(['Patients in queue'])))
+#hosp_info.columns = ['Time'] +  df.NAME.unique() + ['Patients in queue']
+#print(hosp_info.columns)
+
+
+ic_bar = figure(y_range=hospitals, plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
+source_ic = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = hospitals))
 ic_bar.hbar(y='y', right = 'x', source = source_ic, width=5)
 ic_bar.ygrid.grid_line_color = None
 ic_bar.x_range.start, ic_bar.x_range.end = 0, 250
-source_perf = ColumnDataSource(data=dict(x_1 = hosp_info.iloc[100,1:41]+.5, x_2 = hosp_info.iloc[100,1:41]-.5 , y = list(hosp_info.columns)[1:41]))
+source_perf = ColumnDataSource(data=dict(x_1 = hosp_info.iloc[100,1:41]+.5, x_2 = hosp_info.iloc[100,1:41]-.5 , y = hospitals))
 ic_bar.hbar(y='y', right = 'x_1', left = 'x_2', source = source_perf, width=8 ,color = 'red')
 ic_bar.ygrid.grid_line_color = None
 tab1 = Panel(child=ic_bar, title="Absolute")
 
-ic_bar_percent = figure(y_range=list(hosp_info.columns)[1:41], plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
-source_ic_percent = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = list(hosp_info.columns)[1:41]))
+ic_bar_percent = figure(y_range=hospitals, plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
+source_ic_percent = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = hospitals))
 ic_bar_percent.hbar(y='y', right = 'x', source = source_ic_percent, width=5)
 ic_bar_percent.ygrid.grid_line_color = None
 ic_bar_percent.x_range.start, ic_bar_percent.x_range.end = 0, 105
