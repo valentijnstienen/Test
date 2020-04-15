@@ -28,6 +28,7 @@ df = pd.read_csv(PATH_DATA/'input_1504.csv', sep = ",")
 hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo_valentijn1.csv', sep = ",")#, index_col =0)
 hosp_info = hosp_info[hosp_info.Time%2 == 0]
 hosp_info.Time = hosp_info.Time/2
+hosp_info.columns = [*['Time'], *df.NAME.unique(), *['Patients in queue']]
 geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
 
 # Initialization
@@ -40,7 +41,7 @@ MEASURES = list(df.columns.values)[2:11]
 
 # Initial choices
 init_period = 0
-init_agegroups = ['Age_0_9']
+init_agegroups = AGEGROUPS
 init_measure = 'INFECTED_NOSYMPTOMS_NOTCONTAGIOUS'
 
 #Define function that returns json_data for period selected by user.
@@ -155,13 +156,6 @@ def animate_update():
     global callback_id 
     period = slider.value + 1
     
-    #curdoc().remove_periodic_callback(callback_id)
-    #if toggle.active:
-    #    speed = 300
-    #else:
-    #    speed = 1000
-    #callback_id = curdoc().add_periodic_callback(animate_update, speed)
-    
     if period > PERIODS[-1]:
         period = PERIODS[-1]
         curdoc().remove_periodic_callback(callback_id)
@@ -203,7 +197,7 @@ slider = Slider(title = 'Day',start = 0, end = max_time, step = 1, value = init_
 slider.on_change('value', update_plot) 
 
 labels_age = [i.split('Age_')[1].replace('_',' - ') for i in list(AGEGROUPS)]
-checkbox_button_group = CheckboxButtonGroup(labels=labels_age, active=[0] )
+checkbox_button_group = CheckboxButtonGroup(labels=labels_age, active=[0,1,2,3,4,5,6,7,8] )
 checkbox_button_group.on_change('active', update_plot)
 ##############################################################################
 
@@ -246,18 +240,7 @@ plot.yaxis.formatter = NumeralTickFormatter(format="0,0")
 ##############################################################################
 
 ################################ BAR CHART ###################################
-#hospitals_NAME = df.NAME.unique()
 hospitals = list(hosp_info.columns)[1:41]
-#print(hosp_info.head(5))
-#l1 = hosp_info.columns.values[1:41]
-#l2 = ['Time']
-#l3 = [*l1, *l2]
-#print(l3)
-
-#print(list(['Time']).extend(list(df.NAME.unique())).extend(list(['Patients in queue'])))
-#hosp_info.columns = ['Time'] +  df.NAME.unique() + ['Patients in queue']
-#print(hosp_info.columns)
-
 
 ic_bar = figure(y_range=hospitals, plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
 source_ic = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = hospitals))
