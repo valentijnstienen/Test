@@ -89,7 +89,7 @@ def update_colorbar(selectedAgegroups, selectedMeasure):
 ################################# UPDATE PLOT #####################################
 old_slidervalue = 0
 def update_plot(attr, old, new):
-    start = time.time()
+    #start = time.time()
     
     global old_slidervalue
     
@@ -115,6 +115,7 @@ def update_plot(attr, old, new):
     time_period = np.linspace(0, slider.value, slider.value + 1)
     numberInfected = np.array(get_data_linplot(selectedPeriod, selectedAgegroups,selectedMeasure).groupby(['Time']).Infected.sum()).astype(int)
     source.data = dict(x = time_period, y = numberInfected)
+    plot.title.text = "Total number of people " + options_s[MEASURES.index(selectedMeasure)].lower()
     try:
         if (max(numberInfected) - min(numberInfected) < 8):
             plot.y_range.start = min(numberInfected)
@@ -145,8 +146,8 @@ def update_plot(attr, old, new):
     ic_bar.y_range.factors = sorted_hospitals
     ic_bar_percent.y_range.factors = sorted_hospitals_percent
     
-    end = time.time()
-    print(end - start)
+    #end = time.time()
+    #print(end - start)
 ##############################################################################
 
 ################################# BUTTON #####################################
@@ -235,7 +236,7 @@ update_colorbar(init_agegroups, init_measure)
 ##############################################################################
 
 ################################ LINE PLOT ###################################
-plot = figure(plot_height=150, title="Line chart",x_range=[0, max_time], y_range=[0, 10], toolbar_location=None)
+plot = figure(plot_height=150, title="Total number of people " + init_measure_s.lower() ,x_range=[0, max_time], y_range=[0, 10], toolbar_location=None)
 time_period, numberInfected = [],[]
 source = ColumnDataSource(data=dict(x = time_period, y = numberInfected))
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6,)          
