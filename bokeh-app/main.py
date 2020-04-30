@@ -19,16 +19,19 @@ from bokeh.models.callbacks import CustomJS
 from bokeh.palettes import Spectral11
 from bokeh.models.formatters import NumeralTickFormatter
 
+from bokeh.models import DataRange1d
 # Define paths.
 dir_path = os.path.dirname(os.path.realpath(__file__))
 PATH_DATA = pathlib.Path(dir_path)
 
 #Load data 
-df = pd.read_csv(PATH_DATA/'input_1504.csv', sep = ",")
-hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo_valentijn1.csv', sep = ",")#, index_col =0)
+df = pd.read_csv(PATH_DATA/'input_2004.csv', sep = ",")
+hosp_info = pd.read_csv(PATH_DATA/'hospitalInfo_valentijn6.csv', sep = ",", skiprows = [0])#, index_col =0)
 hosp_info = hosp_info[hosp_info.Time%2 == 0]
 hosp_info.Time = hosp_info.Time/2
-hosp_info.columns = [*['Time'], *df.NAME.unique(), *['Patients in queue']]
+hosp_info.columns = [*['Time'], *['AgeGroup'], *df.NAME.unique(), *['Patients in queue']]
+hospCap = pd.read_csv(PATH_DATA/'HospCap.csv', sep = ";", index_col =0)
+hospCap.index = df.NAME.unique()
 geoj = gpd.read_file(PATH_DATA/'corop_simplified_1_4.geojson')
 
 # Initialization
@@ -66,7 +69,7 @@ def update_colorbar(selectedAgegroups, selectedMeasure):
     df_selected = df_selected[df_selected.AGEGROUP.isin(selectedAgegroups)].copy()
     df_selected = df_selected.groupby(['Time','NAME'], sort = False).sum()
     a, b = df_selected.iloc[:,0].min(), df_selected.iloc[:,0].max()
-    
+
     # If total below 250, use linear colormapper
     if (b - a < 250):
         try:
@@ -81,9 +84,13 @@ def update_colorbar(selectedAgegroups, selectedMeasure):
             color_bar.ticker = BasicTicker(desired_num_ticks = 8)
         
     else:
-        color_bar.color_mapper = LogColorMapper(palette = palette, low = a+1, high = b, nan_color = '#d9d9d9')
-        color_bar.ticker = LogTicker(desired_num_ticks = 8)
-    
+        try:
+            color_bar.color_mapper = LogColorMapper(palette = palette, low = a+1, high = b, nan_color = '#d9d9d9')
+            color_bar.ticker = LogTicker(desired_num_ticks = 8)
+        except: 
+            color_bar.color_mapper = LinearColorMapper(palette = palette, low = 0, high = 8, nan_color = '#d9d9d9')
+            color_bar.ticker = BasicTicker(desired_num_ticks = 8)
+   
     # Adjust the colors used in the map accordingly
     duh.glyph.fill_color = {'field' : 'Infected_plus', 'transform' : color_bar.color_mapper} 
      
@@ -98,7 +105,7 @@ def update_plot(attr, old, new):
     selectedPeriod = slider.value
     selectedAgegroups = AGEGROUPS[checkbox_button_group.active]
     selectedMeasure = MEASURES[options_s.index(select.value)]
-    
+        
     # Get relevant data
     new_data, new_json_data = json_data(selectedPeriod, selectedAgegroups, selectedMeasure)
     
@@ -106,7 +113,7 @@ def update_plot(attr, old, new):
     geosource.geojson = new_json_data # Map
     p.title.text = 'Number of people: ' + options_s[MEASURES.index(selectedMeasure)] + ', day: %d' %selectedPeriod # Title
     p.tools[0].tooltips = [ ('COROP', """@{NAME}<style>.bk-tooltip>div:not(:first-child) {display:none;}</style>"""),(select.value, '@Infected_plus')] # Hovertool
-    
+
     # Update colorbar (not when period changes)
     if (old_slidervalue == selectedPeriod):
         update_colorbar(selectedAgegroups, selectedMeasure)
@@ -114,9 +121,14 @@ def update_plot(attr, old, new):
     
     # Update line plot
     time_period = np.linspace(0, slider.value, slider.value + 1)
-    numberInfected = np.array(get_data_linplot(selectedPeriod, selectedAgegroups,selectedMeasure).groupby(['Time']).Infected.sum()).astype(int)
+    
+    numberInfected = np.array(get_data_linplot(selectedPeriod, selectedAgegroups,selectedMeasure).groupby(['Time']).Infected.sum()).astype(int) 
+    if not len(numberInfected):
+        numberInfected = np.zeros(len(time_period))
+        
     source.data = dict(x = time_period, y = numberInfected)
     plot.title.text = "Total number of people " + options_s[MEASURES.index(selectedMeasure)].lower()
+
     try:
         if (max(numberInfected) - min(numberInfected) < 8):
             plot.y_range.start = min(numberInfected)
@@ -129,24 +141,26 @@ def update_plot(attr, old, new):
         plot.y_range.end = 8
     
     # Update ic bar chart
-    hospitals_val = hosp_info[hosp_info.Time == selectedPeriod].iloc[:,1:41]
-    capacities = hosp_info[hosp_info.Time == 100].iloc[0,1:41]
+    #hospitals_val = hosp_info[(hosp_info.Time == selectedPeriod)].iloc[:,2:42]
+    hospitals_val = hosp_info[(hosp_info.Time == selectedPeriod) & (hosp_info.AgeGroup.isin(selectedAgegroups))].iloc[:,2:42].sum().to_frame().T
+    hospitals_val_all = hosp_info[hosp_info.Time == selectedPeriod].iloc[:,2:42].sum().to_frame().T
     #hospitals_fig = list(hosp_info.columns)[1:41]
     # Sort by
     # Alternatives : sorted_hospitals = sorted(hospitals, key = lambda x: capacities.values[hospitals.index(x)] - hospitals_val.iloc[0,hospitals.index(x)]) # Number of IC spots available
     #                sorted_hospitals = sorted(hospitals, key = lambda x: (-capacities.values[hospitals.index(x)] + hospitals_val.iloc[0,hospitals.index(x)],                                
     #                hospitals_val.iloc[0,hospitals.index(x)])) #Combined
     sorted_hospitals = sorted(hospitals, key = lambda x: hospitals_val.iloc[0,hospitals.index(x)]) # Absolute number of patients
-    sorted_hospitals_percent = sorted(hospitals, key = lambda x: (hospitals_val.iloc[0,hospitals.index(x)]/(capacities.values[hospitals.index(x)]+0.01),
-        hospitals_val.iloc[0,hospitals.index(x)])) #Combined Percentage full
+    sorted_hospitals_percent = sorted(hospitals, key = lambda x: (hospitals_val_all.iloc[0,hospitals.index(x)]/(hospital_caps.values[hospitals.index(x)]+0.01),
+        hospitals_val_all.iloc[0,hospitals.index(x)])) #Combined Percentage full
+
     
     # Show
-    source_ic.data = dict(x = hospitals_val.loc[:,sorted_hospitals].values[0], y = sorted_hospitals) # Number of people on IC
-    source_ic_percent.data = dict(x = 100*np.array(hospitals_val.loc[:,sorted_hospitals_percent].values[0], dtype=np.float)/np.array((capacities[sorted_hospitals_percent]+0.01), dtype=np.float), y = sorted_hospitals_percent) # Percentage full
+    source_ic.data = dict(y = sorted_hospitals, right = hospitals_val.loc[:,sorted_hospitals].values[0]) # Number of people on IC
+    source_ic_all.data = dict(y = sorted_hospitals, right1 = hospitals_val_all.loc[:,sorted_hospitals].values[0]) # Number of people on IC
     
+    source_ic_percent.data = dict(y = sorted_hospitals_percent, right = np.round(100*np.array(hospitals_val_all.loc[:,sorted_hospitals_percent].values[0])/np.array((hospital_caps[sorted_hospitals_percent]+0.001)),0)) # Percentage full
     ic_bar.y_range.factors = sorted_hospitals
     ic_bar_percent.y_range.factors = sorted_hospitals_percent
-    
     #end = time.time()
     #print(end - start)
 ##############################################################################
@@ -240,23 +254,38 @@ plot.yaxis.formatter = NumeralTickFormatter(format="0,0")
 ##############################################################################
 
 ################################ BAR CHART ###################################
-hospitals = list(hosp_info.columns)[1:41]
+hospitals = list(hosp_info.columns)[2:42]
+hospital_caps = hospCap.iloc[:,0]
 
-ic_bar = figure(y_range=hospitals, plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
-source_ic = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = hospitals))
-ic_bar.hbar(y='y', right = 'x', source = source_ic, width=5)
+# IC occupation (absolute)
+hover2 = HoverTool(tooltips=[('', '@right')], names = ['aap'])
+ic_bar = figure(title="IC hospitalizations", plot_width = 600, plot_height=500, x_range = DataRange1d(start=0, end=250), y_range=hospitals, toolbar_location = None, tools = [hover2])
 ic_bar.ygrid.grid_line_color = None
-ic_bar.x_range.start, ic_bar.x_range.end = 0, 250
-source_perf = ColumnDataSource(data=dict(x_1 = hosp_info.iloc[100,1:41]+.5, x_2 = hosp_info.iloc[100,1:41]-.5 , y = hospitals))
-ic_bar.hbar(y='y', right = 'x_1', left = 'x_2', source = source_perf, width=8 ,color = 'red')
-ic_bar.ygrid.grid_line_color = None
+
+# Show bar for all agegroups (always, to see capacity)
+source_ic_all = ColumnDataSource(data=dict(y = [], right1 = []))
+ic_bar.hbar(y='y', left = 0, right = 'right1', height = 0.8, color = (57,119,175), alpha = 0.3, source = source_ic_all)
+source_ic_all.data = dict(y=hospitals, right1 =hosp_info.iloc[0,2:42])
+
+# Show bar for selected agegroup(s) 
+source_ic = ColumnDataSource(data=dict(y=[], right=[]))
+ic_bar.hbar(y='y', left = 0, right = 'right', height = 0.8, fill_alpha=1, name = 'aap', source = source_ic)
+source_ic.data = dict(y=hospitals, right=hosp_info.iloc[0,2:42])
+
+# Show capacities
+source_perf = ColumnDataSource(data=dict(y = hospitals, x_1 = hospital_caps-.5, x_2 = hospital_caps+.5))
+ic_bar.hbar(y='y', left = 'x_1', right = 'x_2', height = 0.8 , color = 'red', source = source_perf)
 tab1 = Panel(child=ic_bar, title="Absolute")
 
-ic_bar_percent = figure(y_range=hospitals, plot_height=500, title="IC hospitalizations",toolbar_location=None, tools="")
-source_ic_percent = ColumnDataSource(data=dict(x = hosp_info.iloc[0,1:41], y = hospitals))
-ic_bar_percent.hbar(y='y', right = 'x', source = source_ic_percent, width=5)
+# IC occupation (percentage)
+hover3 = HoverTool(tooltips=[('', '@right%')])
+ic_bar_percent = figure(title="IC hospitalizations", plot_width = 600, plot_height=500, x_range = DataRange1d(start=0, end=105), y_range=hospitals,toolbar_location = None, tools=[hover3])
 ic_bar_percent.ygrid.grid_line_color = None
-ic_bar_percent.x_range.start, ic_bar_percent.x_range.end = 0, 105
+
+source_ic_percent = ColumnDataSource(data=dict(y = hospitals, right = hosp_info.iloc[0,1:41] ))
+ic_bar_percent.hbar(y='y', right = 'right', height = 0.8, source = source_ic_percent)
+
+
 tab2 = Panel(child=ic_bar_percent, title="% IC capacity")
 
 tabs_icbar = Tabs(tabs=[ tab1, tab2 ])
